@@ -15,10 +15,15 @@ class MenuItem(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(Text)
-    price = Column(Float)
-    category = Column(String) # e.g., Starter, Main, Dessert, Drink
+    base_price = Column(Float)
+    category = Column(String)  # e.g., ENTRANTES, PO BOYS, etc.
     image_url = Column(String, nullable=True)
-    is_available = Column(Boolean, default=True)
+    allergens = Column(JSON, default=[])  # e.g., ["Gluten", "Lácteos"]
+    variants = Column(JSON, default=[])   # e.g., [{"name": "Regular", "price": 12.50}, {"name": "XL", "price": 14.50}]
+    tags = Column(JSON, default=[])       # e.g., ["PICANTE", "VEGGIE"]
+    is_active = Column(Boolean, default=True)
+    is_promoted = Column(Boolean, default=False)
+    is_new = Column(Boolean, default=False)
 
 class Reservation(Base):
     __tablename__ = "reservations"
