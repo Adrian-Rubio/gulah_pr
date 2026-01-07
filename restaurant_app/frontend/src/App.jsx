@@ -3,13 +3,14 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Menu from './pages/Menu'
 import Reservations from './pages/Reservations'
-import Blog from './pages/Blog'
+import Events from './pages/Events'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import { ConfigProvider } from './context/ConfigContext'
 import './App.css'
 
 import Footer from './components/Footer'
+import EditModeIndicator from './components/Admin/EditModeIndicator';
 
 function App() {
     return (
@@ -24,11 +25,12 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/menu" element={<Menu />} />
                             <Route path="/reservations" element={<Reservations />} />
-                            <Route path="/blog" element={<Blog />} />
+                            <Route path="/events" element={<Events />} />
                             <Route path="/admin" element={<AdminLogin />} />
                             <Route path="/admin/dashboard" element={<AdminDashboard />} />
                         </Routes>
                     </main>
+                    <EditModeIndicator />
                     <Footer />
                 </div>
             </Router>

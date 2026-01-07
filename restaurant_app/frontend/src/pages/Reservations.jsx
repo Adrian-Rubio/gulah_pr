@@ -1,4 +1,6 @@
 import { ExternalLink } from 'lucide-react';
+import EditableText from '../components/Editable/EditableText';
+import EditableButton from '../components/Editable/EditableButton';
 
 const Reservations = () => {
     const COVER_MANAGER_URL = "https://www.covermanager.com/reserve/module_restaurant/restaurante-gulah/spanish";
@@ -17,8 +19,8 @@ const Reservations = () => {
     return (
         <div className="reservations-page fade-in">
             <div className="page-header">
-                <h2 className="bold-title">¿TIENES HAMBRE DE FUEGO?</h2>
-                <p className="subtitle">Reserva tu mesa y déjate llevar por el sabor más salvaje.</p>
+                <EditableText configKey="reservationsTitle" tag="h2" className="bold-title" />
+                <EditableText configKey="reservationsSubtitle" tag="p" className="subtitle" />
             </div>
 
             <div className="reservations-hero-container">
@@ -29,14 +31,12 @@ const Reservations = () => {
                 </div>
 
                 <div className="reservation-cta-card fade-in">
-                    <a
-                        href={COVER_MANAGER_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <EditableButton
+                        configKey="reservationsBtn"
+                        defaultText="RESERVAR MESA"
+                        defaultLink={COVER_MANAGER_URL}
                         className="btn-primary"
-                    >
-                        RESERVAR MESA <ExternalLink size={20} />
-                    </a>
+                    />
                     <p style={{ marginTop: '2rem', color: '#2d2d2d', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         Gestionado por <span style={{ color: '#ff4a1f' }}>CoverManager</span>
                     </p>
@@ -44,7 +44,7 @@ const Reservations = () => {
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '4rem', color: '#666' }}>
-                <p>También puedes llamarnos al <span style={{ color: '#2d2d2d', fontWeight: 'bold' }}>+34 912 345 678</span></p>
+                <EditableText configKey="reservationsPhone" tag="p" />
             </div>
         </div>
     );

@@ -35,3 +35,19 @@ class MenuItem(MenuItemBase):
 
     class Config:
         from_attributes = True
+
+class BlogPostBase(BaseModel):
+    title: str
+    content: str
+    image_url: Optional[str] = None
+    author: Optional[str] = "Gulah"
+
+class BlogPostCreate(BlogPostBase):
+    pass
+
+class BlogPost(BlogPostBase):
+    id: int
+    created_at: Any
+
+    class Config:
+        from_attributes = True

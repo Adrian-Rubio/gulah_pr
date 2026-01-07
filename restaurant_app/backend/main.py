@@ -1,13 +1,23 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 import models
 from database import engine, get_db
+import shutil
+import os
+import uuid
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Restaurant API")
+
+# Ensure uploads directory exists
+UPLOAD_DIR = "static/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -113,3 +123,34 @@ def update_config(config: dict, db: Session = Depends(get_db)):
     
     db.commit()
     return {"message": f"Config {key} updated successfully"}
+
+@app.post("/admin/upload")
+async def upload_file(file: UploadFile = File(...)):
+    file_extension = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid.uuid4()}{file_extension}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    file_url = f"/static/uploads/{unique_filename}"
+    return {"url": file_url}
+
+# --- Admin Blog Endpoints ---
+
+@app.post("/admin/blog", response_model=schemas.BlogPost)
+def create_blog_post(post: schemas.BlogPostCreate, db: Session = Depends(get_db)):
+    db_post = models.BlogPost(**post.dict())
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+@app.delete("/admin/blog/{post_id}")
+def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
+    db_post = db.query(models.BlogPost).filter(models.BlogPost.id == post_id).first()
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    db.delete(db_post)
+    db.commit()
+    return {"message": "Post deleted successfully"}

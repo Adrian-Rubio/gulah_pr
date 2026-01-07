@@ -19,29 +19,41 @@ def seed_config():
         "hours": "Lunes a Viernes: 10 am - 24 pm | Sábados y Domingos: 13 pm - 24 pm"
     }
 
-    # Update or Create contact_info
-    db_config = db.query(models.SiteConfig).filter(models.SiteConfig.key == "contact_info").first()
-    if db_config:
-        db_config.value = contact_data
-    else:
-        db_config = models.SiteConfig(key="contact_info", value=contact_data)
-        db.add(db_config)
-    
-    # Hero Title
-    hero_title = "EL PLACER ES NUESTRO"
-    db_hero = db.query(models.SiteConfig).filter(models.SiteConfig.key == "welcomeTitle").first()
-    if db_hero:
-        db_hero.value = hero_title
-    else:
-        db.add(models.SiteConfig(key="welcomeTitle", value=hero_title))
-        
-    # Hero Subtitle
-    hero_subtitle = "Bienvenido a Gulah, el templo de los auténticos Po'Boys. Aquí cada bocado es una explosión sin filtros."
-    db_sub = db.query(models.SiteConfig).filter(models.SiteConfig.key == "welcomeSubtitle").first()
-    if db_sub:
-        db_sub.value = hero_subtitle
-    else:
-        db.add(models.SiteConfig(key="welcomeSubtitle", value=hero_subtitle))
+    seeds = [
+        ("contact_info", contact_data),
+        ("welcomeTitle", "EL PLACER ES NUESTRO"),
+        ("welcomeSubtitle", "Bienvenido a Gulah, el templo de los auténticos Po'Boys. Aquí cada bocado es una explosión sin filtros."),
+        ("heroBtn1", {"text": "Ver la Carta", "link": "/menu", "style": "btn-primary"}),
+        ("heroBtn2", {"text": "Reservar Mesa", "link": "/reservations", "style": "btn-secondary"}),
+        ("eventsTitle", "JOURNAL GULAH"),
+        ("eventsSubtitle", "Eventos, historias y el humo que nos une."),
+        ("menuTitle", "NUESTRA CARTA"),
+        ("menuSubtitle", "Explosión de sabores sin filtros. Sin excusas."),
+        ("menuEmptyState", "Próximamente... estamos cocinando algo grande."),
+        ("reservationsTitle", "¿TIENES HAMBRE DE FUEGO?"),
+        ("reservationsSubtitle", "Reserva tu mesa y déjate llevar por el sabor más salvaje."),
+        ("reservationsBtn", {"text": "RESERVAR MESA", "link": "https://www.covermanager.com/reserve/module_restaurant/restaurante-gulah/spanish", "style": "btn-primary"}),
+        ("reservationsPhone", "También puedes llamarnos al +34 912 345 678")
+    ]
+
+    for k, v in seeds:
+        db_config = db.query(models.SiteConfig).filter(models.SiteConfig.key == k).first()
+        if not db_config:
+            db_config = models.SiteConfig(key=k, value=v)
+            db.add(db_config)
+
+    # Initial Blog Posts
+    if not db.query(models.BlogPost).first():
+        db.add(models.BlogPost(
+            title="Noche de Jazz & BBQ",
+            content="Ven a disfrutar de una velada única con los mejores músicos de jazz locales mientras degustas nuestras icónicas alitas.",
+            image_url="/images/Wings.jpeg"
+        ))
+        db.add(models.BlogPost(
+            title="Secretos del Ahumado",
+            content="Descubre cómo preparamos nuestro Pulled Pork en una sesión especial con nuestro Pitmaster.",
+            image_url="/images/pulled pork.jpeg"
+        ))
 
     db.commit()
     db.close()

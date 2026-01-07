@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@400;700;900&display=swap');
+
 :root {
     --red-orange: #ff4a1f;
     --provincial-pink: #fdece7;
@@ -18,6 +20,8 @@
     --accent: var(--vermilion);
     --font-main: 'Inter', sans-serif;
     --font-bold: 'Outfit', sans-serif;
+    --font-elegant: 'Playfair Display', serif;
+    --font-modern: 'Montserrat', sans-serif;
     --max-width: 1200px;
     --radius: 20px;
     --radius-sm: 12px;
@@ -95,6 +99,101 @@ nav {
 
 .nav-links a:hover {
     color: var(--primary);
+}
+
+/* Editable Components */
+.editable-input,
+.editable-textarea {
+    width: 100%;
+    border: 2px solid var(--primary);
+    background: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: inherit;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+}
+
+.editable-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.editable-controls {
+    position: absolute;
+    right: 5px;
+    top: -25px;
+    display: flex;
+    gap: 4px;
+    background: var(--primary);
+    border-radius: 4px;
+    padding: 2px;
+    z-index: 10;
+}
+
+.editable-controls button {
+    background: white;
+    border: none;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    color: var(--primary);
+    transition: all 0.2s;
+}
+
+.editable-controls button:hover {
+    background: var(--provincial-pink);
+}
+
+/* Admin Floater */
+.admin-floater {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.floater-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(255, 74, 31, 0.4);
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.floater-btn:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 74, 31, 0.5);
+}
+
+.floater-btn.secondary {
+    background: var(--secondary);
+    padding: 12px;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+.floater-btn.active {
+    background: #2ecc71;
+    box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
 }
 
 .admin-link {
@@ -225,8 +324,10 @@ h3 {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 30%;
+    /* Shifting focus upwards */
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .hero-badge {
@@ -681,6 +782,26 @@ h3 {
 }
 
 /* Animations */
+/* Visual Editor advanced styles */
+.editable-button-popup,
+.style-panel {
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.editable-button-popup label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.editable-button-popup input {
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

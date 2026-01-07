@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const AdminDashboard = () => {
-    const { siteConfig, updateConfigByKey, fetchConfig } = useConfig();
+    const { siteConfig, updateConfigByKey, fetchConfig, isEditMode, toggleEditMode } = useConfig();
     const [activeTab, setActiveTab] = useState('config');
+    const navigate = useNavigate();
+
+    // ... (rest of the state logic)
 
     // Form states for different sections
     const [heroConfig, setHeroConfig] = useState({
@@ -187,6 +191,110 @@ const AdminDashboard = () => {
         );
     };
 
+    const EventsManager = () => {
+        const [posts, setPosts] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [showAddForm, setShowAddForm] = useState(false);
+        const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
+
+        useEffect(() => {
+            fetchPosts();
+        }, []);
+
+        const fetchPosts = async () => {
+            try {
+                const res = await axios.get('http://localhost:8000/blog');
+                setPosts(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching blog", err);
+            }
+        };
+
+        const handleDelete = async (id) => {
+            if (window.confirm("¿Borrar este evento?")) {
+                await axios.delete(`http://localhost:8000/admin/blog/${id}`);
+                fetchPosts();
+            }
+        };
+
+        const handleAddSubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await axios.post('http://localhost:8000/admin/blog', newPost);
+                setShowAddForm(false);
+                fetchPosts();
+                setNewPost({ title: '', content: '', image_url: '' });
+            } catch (err) {
+                alert("Error al crear el post");
+            }
+        };
+
+        const handleImageUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await axios.post('http://localhost:8000/admin/upload', formData);
+                let url = res.data.url;
+                if (url.startsWith('/')) url = `http://localhost:8000${url}`;
+                setNewPost({ ...newPost, image_url: url });
+            } catch (err) {
+                alert("Error subiendo imagen");
+            }
+        };
+
+        if (loading) return <div>Cargando...</div>;
+
+        return (
+            <div className="events-manager fade-in">
+                <button className="btn-primary" onClick={() => setShowAddForm(!showAddForm)} style={{ marginBottom: '2rem' }}>
+                    {showAddForm ? 'Cancelar' : 'Nuevo Evento'}
+                </button>
+
+                {showAddForm && (
+                    <div className="glass-card fade-in" style={{ marginBottom: '2rem' }}>
+                        <form onSubmit={handleAddSubmit}>
+                            <div className="form-group">
+                                <label>Título</label>
+                                <input type="text" required value={newPost.title} onChange={e => setNewPost({ ...newPost, title: e.target.value })} />
+                            </div>
+                            <div className="form-group">
+                                <label>Imagen</label>
+                                <input type="file" onChange={handleImageUpload} />
+                                {newPost.image_url && <img src={newPost.image_url} style={{ height: '100px', marginTop: '10px', borderRadius: '8px' }} />}
+                            </div>
+                            <div className="form-group">
+                                <label>Contenido / Descripción</label>
+                                <textarea required rows="4" value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })} />
+                            </div>
+                            <button type="submit" className="btn-primary">Publicar Evento</button>
+                        </form>
+                    </div>
+                )}
+
+                <div className="posts-list">
+                    {posts.map(post => (
+                        <div key={post.id} className="item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid #eee' }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                                <img src={post.image_url || '/images/default.jpg'} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />
+                                <div>
+                                    <h4 style={{ textTransform: 'uppercase', marginBottom: '0.3rem' }}>{post.title}</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>{new Date(post.created_at).toLocaleDateString()}</p>
+                                    <p style={{ fontSize: '0.9rem', color: '#333', maxWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.content}</p>
+                                </div>
+                            </div>
+                            <button className="btn-secondary" style={{ color: '#ff4444', borderColor: '#ff4444', padding: '0.8rem' }} onClick={() => handleDelete(post.id)}>
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const handleSaveHero = async () => {
         await updateConfigByKey('welcomeTitle', heroConfig.welcomeTitle);
         await updateConfigByKey('welcomeSubtitle', heroConfig.welcomeSubtitle);
@@ -196,6 +304,11 @@ const AdminDashboard = () => {
     const handleSaveContact = async () => {
         await updateConfigByKey('contact_info', contactConfig);
         alert('Información de contacto guardada!');
+    };
+
+    const handleLaunchEditor = () => {
+        if (!isEditMode) toggleEditMode();
+        navigate('/');
     };
 
     return (
@@ -208,14 +321,20 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'config' ? 'active' : ''} onClick={() => setActiveTab('config')}>
                         <LayoutDashboard size={20} /> Home Config
                     </button>
+                    <button className={activeTab === 'editor' ? 'active' : ''} onClick={() => setActiveTab('editor')}>
+                        <Plus size={20} /> Editor Visual
+                    </button>
                     <button className={activeTab === 'contact' ? 'active' : ''} onClick={() => setActiveTab('contact')}>
                         <MapPin size={20} /> Contacto & Horarios
                     </button>
                     <button className={activeTab === 'menu' ? 'active' : ''} onClick={() => setActiveTab('menu')}>
                         <Utensils size={20} /> Carta Digital
                     </button>
+                    <button className={activeTab === 'events' ? 'active' : ''} onClick={() => setActiveTab('events')}>
+                        <Calendar size={20} /> Gestión de Eventos
+                    </button>
                     <button className={activeTab === 'reservations' ? 'active' : ''} onClick={() => setActiveTab('reservations')}>
-                        <Calendar size={20} /> Reservas
+                        <Clock size={20} /> Reservas
                     </button>
                 </nav>
             </aside>
@@ -224,8 +343,10 @@ const AdminDashboard = () => {
                 <header className="content-header">
                     <h2 style={{ fontSize: '2rem' }}>
                         {activeTab === 'config' ? 'Ajustes de Portada' :
-                            activeTab === 'contact' ? 'Contacto y Horarios' :
-                                activeTab === 'menu' ? 'Gestión de la Carta' : 'Control de Reservas'}
+                            activeTab === 'editor' ? 'Editor Visual' :
+                                activeTab === 'contact' ? 'Contacto y Horarios' :
+                                    activeTab === 'menu' ? 'Gestión de la Carta' :
+                                        activeTab === 'events' ? 'Eventos y Journal' : 'Control de Reservas'}
                     </h2>
                     {(activeTab === 'config') && (
                         <button className="btn-primary" onClick={handleSaveHero}>
@@ -256,6 +377,26 @@ const AdminDashboard = () => {
                                 value={heroConfig.welcomeSubtitle}
                                 onChange={(e) => setHeroConfig({ ...heroConfig, welcomeSubtitle: e.target.value })}
                             />
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'editor' && (
+                    <div className="glass-card fade-in" style={{ padding: '4rem', textAlign: 'center' }}>
+                        <div style={{ marginBottom: '2rem' }}>
+                            <Settings size={64} color="var(--primary)" style={{ marginBottom: '1rem' }} />
+                            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Editor Visual "En Vivo"</h3>
+                            <p style={{ color: 'var(--text-muted)', maxWidth: '500px', margin: '0 auto', lineHeight: '1.6' }}>
+                                Esta funcionalidad te permite editar los textos y las imágenes directamente sobre la web, viendo los cambios en tiempo real antes de guardarlos.
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+                            <button className="btn-primary" style={{ padding: '1.2rem 2.5rem' }} onClick={handleLaunchEditor}>
+                                <Plus size={20} /> Activar Edición e ir al Inicio
+                            </button>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                * Al pulsar, serás redirigido a la página de inicio con los controles de edición activos.
+                            </p>
                         </div>
                     </div>
                 )}
@@ -310,6 +451,10 @@ const AdminDashboard = () => {
 
                 {activeTab === 'menu' && (
                     <MenuManager />
+                )}
+
+                {activeTab === 'events' && (
+                    <EventsManager />
                 )}
 
                 {activeTab === 'reservations' && (

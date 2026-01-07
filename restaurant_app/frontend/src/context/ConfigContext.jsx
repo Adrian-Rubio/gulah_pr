@@ -43,8 +43,19 @@ export const ConfigProvider = ({ children }) => {
         }
     };
 
+    const [isEditMode, setIsEditMode] = useState(false);
+
+    const toggleEditMode = () => setIsEditMode(prev => !prev);
+
     return (
-        <ConfigContext.Provider value={{ siteConfig, setSiteConfig, updateConfigByKey, fetchConfig }}>
+        <ConfigContext.Provider value={{
+            siteConfig,
+            setSiteConfig,
+            updateConfigByKey,
+            fetchConfig,
+            isEditMode,
+            toggleEditMode
+        }}>
             {children}
         </ConfigContext.Provider>
     );

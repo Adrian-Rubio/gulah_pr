@@ -1,5 +1,7 @@
-import { MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-react';
+import { MapPin, Phone, Mail, Instagram, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useConfig } from '../context/ConfigContext';
+import EditableText from './Editable/EditableText';
 
 const Footer = () => {
     const { siteConfig } = useConfig();
@@ -18,23 +20,27 @@ const Footer = () => {
                     <h4 style={{ marginBottom: '1.5rem', textTransform: 'uppercase' }}>Contacto</h4>
                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <li style={{ display: 'flex', gap: '0.8rem', color: 'var(--text-muted)' }}>
-                            <MapPin size={18} color="var(--primary)" /> {siteConfig.address}
+                            <MapPin size={18} color="var(--primary)" />
+                            <EditableText configKey="address" />
                         </li>
                         <li style={{ display: 'flex', gap: '0.8rem', color: 'var(--text-muted)' }}>
-                            <Phone size={18} color="var(--primary)" /> {siteConfig.phone}
+                            <Phone size={18} color="var(--primary)" />
+                            <EditableText configKey="phone" />
                         </li>
                         <li style={{ display: 'flex', gap: '0.8rem', color: 'var(--text-muted)' }}>
-                            <Mail size={18} color="var(--primary)" /> {siteConfig.email}
+                            <Mail size={18} color="var(--primary)" />
+                            <EditableText configKey="email" />
                         </li>
                         <li style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', color: 'var(--text-muted)' }}>
-                            <span style={{ fontWeight: 'bold', color: 'var(--text)' }}>Grupos:</span> {siteConfig.reservation_email}
+                            <span style={{ fontWeight: 'bold', color: 'var(--text)' }}>Grupos:</span>
+                            <EditableText configKey="reservation_email" />
                         </li>
                     </ul>
                 </div>
 
                 <div className="footer-hours">
                     <h4 style={{ marginBottom: '1.5rem', textTransform: 'uppercase' }}>Horario</h4>
-                    <p style={{ color: 'var(--text-muted)' }}>{siteConfig.hours}</p>
+                    <EditableText configKey="hours" tag="p" style={{ color: 'var(--text-muted)' }} />
                 </div>
 
                 <div className="footer-social">
@@ -68,8 +74,11 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '4rem', paddingOver: '2rem', borderTop: '1px solid rgba(0,0,0,0.05)', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <div style={{ textAlign: 'center', marginTop: '4rem', paddingOver: '2rem', borderTop: '1px solid rgba(0,0,0,0.05)', color: 'var(--text-muted)', fontSize: '0.9rem', position: 'relative' }}>
                 <p>&copy; {new Date().getFullYear()} Gulah Restaurant. Todos los derechos reservados.</p>
+                <Link to="/admin" className="admin-gear" style={{ position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)' }}>
+                    <Settings size={20} />
+                </Link>
             </div>
         </footer>
     );

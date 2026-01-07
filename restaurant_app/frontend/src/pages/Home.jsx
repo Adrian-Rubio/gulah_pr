@@ -3,6 +3,9 @@ import { ArrowRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../context/ConfigContext';
 import MarqueeBanner from '../components/MarqueeBanner';
+import EditableText from '../components/Editable/EditableText';
+import EditableImage from '../components/Editable/EditableImage';
+import EditableButton from '../components/Editable/EditableButton';
 
 const Home = () => {
     const { siteConfig } = useConfig();
@@ -41,9 +44,12 @@ const Home = () => {
 
             <section className="hero">
                 <div className="hero-content">
-                    <h2 className="fade-in">
-                        {(() => {
-                            const words = (siteConfig.welcomeTitle || "").split(' ');
+                    <EditableText
+                        configKey="welcomeTitle"
+                        tag="h2"
+                        className="fade-in"
+                        renderValue={(val) => {
+                            const words = (val || "").split(' ');
                             if (words.length > 1) {
                                 return (
                                     <>
@@ -51,17 +57,36 @@ const Home = () => {
                                     </>
                                 );
                             }
-                            return siteConfig.welcomeTitle;
-                        })()}
-                    </h2>
-                    <p className="fade-in-delay">{siteConfig.welcomeSubtitle}</p>
-                    <div className="hero-actions fade-in-delay-2">
-                        <Link to="/menu" className="btn-primary">Ver la Carta <ArrowRight size={18} /></Link>
-                        <Link to="/reservations" className="btn-secondary">Reservar Mesa</Link>
+                            return val;
+                        }}
+                    />
+                    <EditableText
+                        configKey="welcomeSubtitle"
+                        tag="p"
+                        className="fade-in-delay"
+                    />
+                    <div className="hero-actions fade-in-delay-large">
+                        <EditableButton
+                            configKey="heroBtn1"
+                            defaultText="Ver la Carta"
+                            defaultLink="/menu"
+                            className="btn-primary"
+                        />
+                        <EditableButton
+                            configKey="heroBtn2"
+                            defaultText="Reservar Mesa"
+                            defaultLink="/reservations"
+                            className="btn-secondary"
+                        />
                     </div>
                 </div>
                 <div className="hero-image-container fade-in-delay">
-                    <img src="/images/home-hero-new.jpg" alt="Plato estrella Gulah" className="hero-image" />
+                    <EditableImage
+                        configKey="heroImage"
+                        defaultSrc="/images/home-hero-new.jpg"
+                        alt="Plato estrella Gulah"
+                        className="hero-image"
+                    />
                 </div>
             </section>
 

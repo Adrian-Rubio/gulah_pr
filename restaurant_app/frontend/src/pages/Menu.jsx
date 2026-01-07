@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Flame } from 'lucide-react';
 import axios from 'axios';
+import EditableText from '../components/Editable/EditableText';
 
 const ALLERGEN_ICONS = {
     "Gluten": "/icons/simbolo-alergeno-cereales.png",
@@ -53,8 +54,8 @@ const Menu = () => {
     return (
         <div className="menu-page fade-in">
             <div className="page-header">
-                <h1 className="bold-title">NUESTRA CARTA</h1>
-                <p className="subtitle">Explosión de sabores sin filtros. Sin excusas.</p>
+                <EditableText configKey="menuTitle" tag="h1" className="bold-title" />
+                <EditableText configKey="menuSubtitle" tag="p" className="subtitle" />
             </div>
 
             <div className="category-tabs">
@@ -120,7 +121,7 @@ const Menu = () => {
                 ))}
                 {items.filter(item => item.category === activeCategory).length === 0 && (
                     <div className="empty-state">
-                        <p>Próximamente... estamos cocinando algo grande.</p>
+                        <EditableText configKey="menuEmptyState" tag="p" />
                     </div>
                 )}
             </div>
