@@ -7,6 +7,15 @@ from database import engine, get_db
 import shutil
 import os
 import uuid
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
@@ -154,3 +163,69 @@ def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
     db.delete(db_post)
     db.commit()
     return {"message": "Post deleted successfully"}
+
+# --- User Management Endpoints ---
+
+@app.post("/admin/login")
+def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == request.username).first()
+    if not user or not verify_password(request.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
+    
+    return {
+        "id": user.id,
+        "username": user.username,
+        "is_admin": user.is_admin,
+        "is_superuser": user.is_superuser
+    }
+
+@app.get("/admin/users", response_model=List[schemas.User])
+def get_users(db: Session = Depends(get_db)):
+    return db.query(models.User).all()
+
+@app.post("/admin/users", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # Check if exists
+    existing = db.query(models.User).filter(models.User.username == user.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="El usuario ya existe")
+    
+    db_user = models.User(
+        username=user.username,
+        hashed_password=get_password_hash(user.password),
+        is_admin=user.is_admin,
+        is_superuser=user.is_superuser
+    )
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@app.put("/admin/users/{user_id}", response_model=schemas.User)
+def update_user(user_id: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if user.username is not None:
+        db_user.username = user.username
+    if user.password is not None and user.password.strip() != "":
+        db_user.hashed_password = get_password_hash(user.password)
+    if user.is_admin is not None:
+        db_user.is_admin = user.is_admin
+    if user.is_superuser is not None:
+        db_user.is_superuser = user.is_superuser
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@app.delete("/admin/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Don't delete last superuser maybe? For now just delete.
+    db.delete(db_user)
+    db.commit()
+    return {"message": "Usuario eliminado"}

@@ -9,6 +9,7 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_admin = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=False)
 
 class MenuItem(Base):
     __tablename__ = "menu_items"

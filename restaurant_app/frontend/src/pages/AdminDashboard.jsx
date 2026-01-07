@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff } from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,6 +8,14 @@ const AdminDashboard = () => {
     const { siteConfig, updateConfigByKey, fetchConfig, isEditMode, toggleEditMode } = useConfig();
     const [activeTab, setActiveTab] = useState('config');
     const navigate = useNavigate();
+    const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
+    const currentUser = JSON.parse(userString || '{}');
+
+    useEffect(() => {
+        if (!userString) {
+            navigate('/admin');
+        }
+    }, [userString, navigate]);
 
     // ... (rest of the state logic)
 
@@ -295,6 +303,163 @@ const AdminDashboard = () => {
         );
     };
 
+
+    const UsersManager = () => {
+        const [users, setUsers] = useState([]);
+        const [showAdd, setShowAdd] = useState(false);
+        const [editingUser, setEditingUser] = useState(null);
+        const [newUser, setNewUser] = useState({ username: '', password: '', is_superuser: false });
+        const [showPassCreate, setShowPassCreate] = useState(false);
+        const [showPassEdit, setShowPassEdit] = useState(false);
+
+        useEffect(() => {
+            fetchUsers();
+        }, []);
+
+        const fetchUsers = async () => {
+            try {
+                const res = await axios.get('http://localhost:8000/admin/users');
+                setUsers(res.data);
+            } catch (err) {
+                console.error("Error fetching users", err);
+            }
+        };
+
+        const handleCreate = async (e) => {
+            e.preventDefault();
+            try {
+                await axios.post('http://localhost:8000/admin/users', newUser);
+                setShowAdd(false);
+                fetchUsers();
+                setNewUser({ username: '', password: '', is_superuser: false });
+            } catch (err) {
+                alert(err.response?.data?.detail || "Error al crear usuario");
+            }
+        };
+
+        const handleUpdate = async (e) => {
+            e.preventDefault();
+            try {
+                // We send the whole object, backend handles password if not empty
+                await axios.put(`http://localhost:8000/admin/users/${editingUser.id}`, editingUser);
+                setEditingUser(null);
+                fetchUsers();
+            } catch (err) {
+                alert(err.response?.data?.detail || "Error al actualizar usuario");
+            }
+        };
+
+        const handleDelete = async (id) => {
+            if (window.confirm("¿Borrar este usuario?")) {
+                await axios.delete(`http://localhost:8000/admin/users/${id}`);
+                fetchUsers();
+            }
+        };
+
+        return (
+            <div className="users-manager fade-in">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <button className="btn-primary" onClick={() => { setShowAdd(!showAdd); setEditingUser(null); }}>
+                        {showAdd ? 'Cancelar' : 'Crear Nuevo Usuario'}
+                    </button>
+                    <p style={{ fontSize: '0.8rem', color: '#666', background: '#f0f0f0', padding: '5px 12px', borderRadius: '4px' }}>
+                        🔒 Las contraseñas se almacenan encriptadas y no son legibles.
+                    </p>
+                </div>
+
+                {showAdd && (
+                    <div className="glass-card fade-in" style={{ marginBottom: '2rem' }}>
+                        <form onSubmit={handleCreate}>
+                            <div className="form-group">
+                                <label>Nombre de Usuario</label>
+                                <input type="text" required value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} />
+                            </div>
+                            <div className="form-group">
+                                <label>Contraseña</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type={showPassCreate ? "text" : "password"}
+                                        required
+                                        value={newUser.password}
+                                        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassCreate(!showPassCreate)}
+                                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}
+                                    >
+                                        {showPassCreate ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <input type="checkbox" checked={newUser.is_superuser} onChange={e => setNewUser({ ...newUser, is_superuser: e.target.checked })} />
+                                <label style={{ margin: 0 }}>¿Es Super Usuario? (Permite gestionar otros usuarios)</label>
+                            </div>
+                            <button type="submit" className="btn-primary">Crear Usuario</button>
+                        </form>
+                    </div>
+                )}
+
+                <div className="users-list">
+                    {users.map(u => (
+                        <div key={u.id} className="item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: (editingUser && editingUser.id === u.id) ? '2px solid var(--primary)' : (u.is_superuser ? '2px solid #333' : '1px solid #eee') }}>
+                            {editingUser && editingUser.id === u.id ? (
+                                <form onSubmit={handleUpdate} style={{ display: 'flex', gap: '15px', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
+                                    <div style={{ flex: 1, minWidth: '150px' }}>
+                                        <input type="text" value={editingUser.username} onChange={e => setEditingUser({ ...editingUser, username: e.target.value })} style={{ width: '100%', marginBottom: 0 }} />
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: '180px', position: 'relative' }}>
+                                        <input
+                                            type={showPassEdit ? "text" : "password"}
+                                            placeholder="Nueva clave (opcional)"
+                                            onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
+                                            style={{ width: '100%', marginBottom: 0, paddingRight: '35px' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassEdit(!showPassEdit)}
+                                            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}
+                                        >
+                                            {showPassEdit ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <input type="checkbox" checked={editingUser.is_superuser} onChange={e => setEditingUser({ ...editingUser, is_superuser: e.target.checked })} id={`super-${u.id}`} />
+                                        <label htmlFor={`super-${u.id}`} style={{ fontSize: '0.8rem', margin: 0, cursor: 'pointer' }}>Super</label>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button type="submit" className="btn-primary" style={{ padding: '0.5rem 1rem' }}><Save size={18} /></button>
+                                        <button type="button" className="btn-secondary" onClick={() => { setEditingUser(null); setShowPassEdit(false); }} style={{ padding: '0.5rem 1rem' }}>X</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <>
+                                    <div>
+                                        <h4 style={{ textTransform: 'uppercase' }}>{u.username}</h4>
+                                        <p style={{ fontSize: '0.8rem', color: u.is_superuser ? 'var(--primary)' : '#666', fontWeight: u.is_superuser ? 'bold' : 'normal' }}>
+                                            {u.is_superuser ? 'SUPER USUARIO' : 'ADMINISTRADOR'}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button className="btn-secondary" title="Editar" onClick={() => { setEditingUser({ ...u, password: '' }); setShowAdd(false); setShowPassEdit(false); }}>
+                                            <Settings size={18} />
+                                        </button>
+                                        {u.username !== currentUser.username && (
+                                            <button className="btn-secondary" title="Eliminar" style={{ color: '#ff4444', borderColor: '#ff4444' }} onClick={() => handleDelete(u.id)}>
+                                                <Trash2 size={18} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const handleSaveHero = async () => {
         await updateConfigByKey('welcomeTitle', heroConfig.welcomeTitle);
         await updateConfigByKey('welcomeSubtitle', heroConfig.welcomeSubtitle);
@@ -336,6 +501,11 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'reservations' ? 'active' : ''} onClick={() => setActiveTab('reservations')}>
                         <Clock size={20} /> Reservas
                     </button>
+                    {currentUser.is_superuser && (
+                        <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
+                            <Users size={20} /> Usuarios
+                        </button>
+                    )}
                 </nav>
             </aside>
 
@@ -346,7 +516,8 @@ const AdminDashboard = () => {
                             activeTab === 'editor' ? 'Editor Visual' :
                                 activeTab === 'contact' ? 'Contacto y Horarios' :
                                     activeTab === 'menu' ? 'Gestión de la Carta' :
-                                        activeTab === 'events' ? 'Eventos y Journal' : 'Control de Reservas'}
+                                        activeTab === 'events' ? 'Eventos y Journal' :
+                                            activeTab === 'users' ? 'Gestión de Usuarios' : 'Control de Reservas'}
                     </h2>
                     {(activeTab === 'config') && (
                         <button className="btn-primary" onClick={handleSaveHero}>
@@ -462,6 +633,10 @@ const AdminDashboard = () => {
                         <p style={{ color: 'var(--text-muted)' }}>Las reservas se gestionan externamente a través de CoverManager.</p>
                         <a href="https://www.covermanager.com" target="_blank" className="btn-secondary" style={{ marginTop: '1rem', display: 'inline-flex' }}>Ir a CoverManager</a>
                     </div>
+                )}
+
+                {activeTab === 'users' && currentUser.is_superuser && (
+                    <UsersManager />
                 )}
             </main>
         </div>

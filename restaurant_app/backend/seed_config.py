@@ -6,6 +6,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database import SessionLocal
 import models
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 def seed_config():
     db = SessionLocal()
@@ -41,6 +44,19 @@ def seed_config():
         if not db_config:
             db_config = models.SiteConfig(key=k, value=v)
             db.add(db_config)
+
+    # Super User
+    admin_user = db.query(models.User).filter(models.User.username == "arubio").first()
+    if not admin_user:
+        hashed_pwd = pwd_context.hash("gulaAdmin2202")
+        admin_user = models.User(
+            username="arubio",
+            hashed_password=hashed_pwd,
+            is_admin=True,
+            is_superuser=True
+        )
+        db.add(admin_user)
+        print("Super usuario arubio creado correctamente.")
 
     # Initial Blog Posts
     if not db.query(models.BlogPost).first():
