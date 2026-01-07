@@ -1,10 +1,39 @@
-import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../context/ConfigContext';
 import MarqueeBanner from '../components/MarqueeBanner';
 
 const Home = () => {
     const { siteConfig } = useConfig();
+    const [activeFaq, setActiveFaq] = useState(null);
+
+    const faqs = [
+        {
+            question: "¿Cómo hago una reserva?",
+            answer: "Si sois un buen grupo llámanos y te guardamos sitio. Si vienes solo o en pareja, vente directo y buscamos hueco."
+        },
+        {
+            question: "Política de cancelación",
+            answer: "Si reservaste y al final no puedes venir, avísanos con tiempo. No nos gusta ver mesas vacías cuando alguien más pudo haber disfrutado. Sé buena gente y llámanos."
+        },
+        {
+            question: "Alergias e intolerancias",
+            answer: "Lo primero, avísanos cuando pidas. Lo segundo, confía en que aquí nos tomamos en serio lo que va en el plato. Si hay algo que no puedes comer, lo adaptamos o te recomendamos lo mejor para ti."
+        },
+        {
+            question: "¿Se puede venir con niños?",
+            answer: "Claro, pero recuerda que aquí el ruido lo pone la música y no los gritos. Si vienen peques, bienvenidos… pero que traigan buen saque, que aquí se come en serio."
+        },
+        {
+            question: "Código de vestimenta",
+            answer: "La única regla es venir con hambre. Si eso, ponte algo cómodo para disfrutar bien la comida. Pero si te vienes elegante, tampoco te vamos a juzgar."
+        }
+    ];
+
+    const toggleFaq = (index) => {
+        setActiveFaq(activeFaq === index ? null : index);
+    };
 
     return (
         <div className="home-page fade-in">
@@ -14,7 +43,7 @@ const Home = () => {
                 <div className="hero-content">
                     <h2 className="fade-in">
                         {(() => {
-                            const words = siteConfig.welcomeTitle.split(' ');
+                            const words = (siteConfig.welcomeTitle || "").split(' ');
                             if (words.length > 1) {
                                 return (
                                     <>
@@ -33,27 +62,28 @@ const Home = () => {
                 </div>
                 <div className="hero-image-container fade-in-delay">
                     <img src="/images/home-hero-new.jpg" alt="Plato estrella Gulah" className="hero-image" />
-                    <div className="glass-card hero-stats">
-                        <div className="stat-item">
-                            <span className="stat-value">4.9</span>
-                            <span className="stat-label">Google Reviews</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-value">100%</span>
-                            <span className="stat-label">Pasión</span>
-                        </div>
-                    </div>
                 </div>
             </section>
 
-            <section className="featured-info fade-in-delay-2">
-                <div className="info-card glass-card">
-                    <h3>Horario</h3>
-                    <p>{siteConfig.hours || 'Lunes - Domingo: 13:00 - 00:00'}</p>
-                </div>
-                <div className="info-card glass-card">
-                    <h3>Ubicación</h3>
-                    <p>{siteConfig.address || 'Calle Gastronomía 123, Madrid'}</p>
+            <section className="faq-section fade-in">
+                <div className="faq-grid">
+                    <div className="faq-header">
+                        <h2>FAQ'S</h2>
+                        <p>Sabemos que tienes dudas, y como no nos gusta dejarte en visto, aquí van las respuestas. Léelas, asimílalas y si todavía te queda alguna, pregúntanos sin miedo.</p>
+                    </div>
+                    <div className="faq-list">
+                        {faqs.map((faq, index) => (
+                            <div key={index} className={`faq-item ${activeFaq === index ? 'active' : ''}`}>
+                                <button className="faq-question" onClick={() => toggleFaq(index)}>
+                                    {faq.question}
+                                    <Plus className="faq-icon" size={24} />
+                                </button>
+                                <div className="faq-answer">
+                                    <p>{faq.answer}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

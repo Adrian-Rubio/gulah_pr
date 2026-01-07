@@ -114,7 +114,6 @@ const Menu = () => {
                                         : formatPrice(item.base_price)
                                     }
                                 </span>
-                                <button className="btn-add-mini">+</button>
                             </div>
                         </div>
                     </div>

@@ -5,13 +5,13 @@ const ConfigContext = createContext();
 
 export const ConfigProvider = ({ children }) => {
     const [siteConfig, setSiteConfig] = useState({
-        welcomeTitle: 'EXPLOSIÓN DE SABORES SIN FILTROS',
-        welcomeSubtitle: 'Auténtica street food con el toque salvaje de Gulah.',
-        address: 'Calle Gastronomía 123, Madrid',
+        welcomeTitle: 'EL PLACER ES NUESTRO',
+        welcomeSubtitle: "Bienvenido a Gulah, el templo de los auténticos Po'Boys. Aquí cada bocado es una explosión sin filtros.",
+        address: 'Arturo Soria, 198, 28043, Madrid.',
         phone: '+34 912 345 678',
-        email: 'info@restaurante-gulah.com',
-        reservation_email: 'reservas@restaurante-gulah.com',
-        hours: 'Lunes - Domingo: 13:00 - 00:00'
+        email: 'info@gulahpoboys.com',
+        reservation_email: 'reservas@gulahpoboys.com',
+        hours: 'Lunes a Viernes: 10 am - 24 pm | Sábados y Domingos: 13 pm - 24 pm'
     });
 
     const fetchConfig = async () => {

@@ -26,6 +26,9 @@ const Footer = () => {
                         <li style={{ display: 'flex', gap: '0.8rem', color: 'var(--text-muted)' }}>
                             <Mail size={18} color="var(--primary)" /> {siteConfig.email}
                         </li>
+                        <li style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', color: 'var(--text-muted)' }}>
+                            <span style={{ fontWeight: 'bold', color: 'var(--text)' }}>Grupos:</span> {siteConfig.reservation_email}
+                        </li>
                     </ul>
                 </div>
 
@@ -37,8 +40,31 @@ const Footer = () => {
                 <div className="footer-social">
                     <h4 style={{ marginBottom: '1.5rem', textTransform: 'uppercase' }}>Síguenos</h4>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
-                        <a href="#" style={{ color: 'var(--text)', transition: 'color 0.3s' }} onMouseOver={e => e.target.style.color = 'var(--primary)'} onMouseOut={e => e.target.style.color = 'var(--text)'}><Instagram size={24} /></a>
-                        <a href="#" style={{ color: 'var(--text)', transition: 'color 0.3s' }} onMouseOver={e => e.target.style.color = 'var(--primary)'} onMouseOut={e => e.target.style.color = 'var(--text)'}><Facebook size={24} /></a>
+                        <a
+                            href="https://www.instagram.com/gulah_poboys/?hl=es"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                color: 'var(--text)',
+                                transition: 'all 0.3s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                textDecoration: 'none',
+                                fontWeight: '600'
+                            }}
+                            onMouseOver={e => {
+                                e.currentTarget.style.color = 'var(--primary)';
+                                e.currentTarget.style.transform = 'translateY(-3px)';
+                            }}
+                            onMouseOut={e => {
+                                e.currentTarget.style.color = 'var(--text)';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                        >
+                            <Instagram size={28} />
+                            <span>@gulah_poboys</span>
+                        </a>
                     </div>
                 </div>
             </div>
