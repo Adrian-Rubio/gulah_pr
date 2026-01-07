@@ -95,3 +95,21 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
     db.delete(db_item)
     db.commit()
     return {"message": "Item deleted successfully"}
+
+@app.post("/admin/config")
+def update_config(config: dict, db: Session = Depends(get_db)):
+    # Expects format: {"key": "...", "value": ...}
+    key = config.get("key")
+    value = config.get("value")
+    if not key:
+        raise HTTPException(status_code=400, detail="Key is required")
+    
+    db_config = db.query(models.SiteConfig).filter(models.SiteConfig.key == key).first()
+    if db_config:
+        db_config.value = value
+    else:
+        db_config = models.SiteConfig(key=key, value=value)
+        db.add(db_config)
+    
+    db.commit()
+    return {"message": f"Config {key} updated successfully"}

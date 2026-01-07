@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { UtensilsCrossed } from 'lucide-react';
+import { Flame } from 'lucide-react';
 
 const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="nav-logo">
-                <UtensilsCrossed size={24} />
-                <Link to="/">GOLDEN FORK</Link>
+                <Link to="/">
+                    <img src="/images/logo.png" alt="Gulah Logo" style={{ height: '45px', width: 'auto' }} />
+                </Link>
             </div>
             <ul className="nav-links">
                 <li><Link to="/">Inicio</Link></li>

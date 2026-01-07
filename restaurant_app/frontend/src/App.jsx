@@ -9,6 +9,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import { ConfigProvider } from './context/ConfigContext'
 import './App.css'
 
+import Footer from './components/Footer'
+
 function App() {
     return (
         <ConfigProvider>
@@ -27,6 +29,7 @@ function App() {
                             <Route path="/admin/dashboard" element={<AdminDashboard />} />
                         </Routes>
                     </main>
+                    <Footer />
                 </div>
             </Router>
         </ConfigProvider>

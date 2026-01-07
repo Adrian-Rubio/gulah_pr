@@ -1,61 +1,50 @@
-import { useState } from 'react';
-import { Calendar, Users, Clock, Send } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 const Reservations = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        guests: 2,
-        date: '',
-        time: '20:30'
-    });
+    const COVER_MANAGER_URL = "https://www.covermanager.com/reserve/module_restaurant/restaurante-gulah/spanish";
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        alert(`Reserva solicitada para ${formData.name} el ${formData.date} a las ${formData.time}`);
-    };
+    const bgImages = [
+        "/images/Wings.jpeg",
+        "/images/PHILLY CHEESESTEAK.jpeg",
+        "/images/nachos gulah.jpeg",
+        "/images/toro loco.jpeg",
+        "/images/pulled pork.jpeg",
+        "/images/alitas infierno.jpeg",
+        "/images/brutus choice.jpeg",
+        "/images/higo & roll.jpeg"
+    ];
 
     return (
         <div className="reservations-page fade-in">
             <div className="page-header">
-                <h2>Reservar Mesa</h2>
-                <p>Asegura tu lugar en una noche mágica.</p>
+                <h2 className="bold-title">¿TIENES HAMBRE DE FUEGO?</h2>
+                <p className="subtitle">Reserva tu mesa y déjate llevar por el sabor más salvaje.</p>
             </div>
 
-            <div className="reservation-container">
-                <div className="reservation-image">
-                    {/* Aquí podría ir una imagen de una mesa montada */}
-                    <img src="https://images.unsplash.com/photo-1550966841-3ee5ad60d0d9?auto=format&fit=crop&q=80&w=1000" alt="Mesa reservada" />
+            <div className="reservations-hero-container">
+                <div className="reservations-bg-animation">
+                    {bgImages.map((src, i) => (
+                        <img key={i} src={src} alt="" />
+                    ))}
                 </div>
 
-                <form className="glass-card reservation-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-                    </div>
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label><Users size={14} /> Comensales</label>
-                            <input type="number" min="1" max="20" value={formData.guests} onChange={e => setFormData({ ...formData, guests: e.target.value })} />
-                        </div>
-                        <div className="form-group">
-                            <label><Calendar size={14} /> Fecha</label>
-                            <input type="date" required value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <label><Clock size={14} /> Hora</label>
-                        <select value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })}>
-                            <option>13:00</option>
-                            <option>13:30</option>
-                            <option>14:00</option>
-                            <option>20:30</option>
-                            <option>21:00</option>
-                            <option>21:30</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="btn-primary w-full">Confirmar Reserva <Send size={18} /></button>
-                </form>
+                <div className="reservation-cta-card fade-in">
+                    <a
+                        href={COVER_MANAGER_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-primary"
+                    >
+                        RESERVAR MESA <ExternalLink size={20} />
+                    </a>
+                    <p style={{ marginTop: '2rem', color: '#2d2d2d', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Gestionado por <span style={{ color: '#ff4a1f' }}>CoverManager</span>
+                    </p>
+                </div>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '4rem', color: '#666' }}>
+                <p>También puedes llamarnos al <span style={{ color: '#2d2d2d', fontWeight: 'bold' }}>+34 912 345 678</span></p>
             </div>
         </div>
     );

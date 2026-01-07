@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
+import { Flame } from 'lucide-react';
 import axios from 'axios';
 
 const ALLERGEN_ICONS = {
-    "Gluten": "🌾",
-    "Lácteos": "🥛",
-    "Huevos": "🥚",
-    "Soja": "🫘",
-    "Mostaza": "🌭",
-    "Pescado": "🐟",
-    "Crustáceos": "🦀",
-    "Moluscos": "🐚",
-    "Apio": "🌱",
-    "Frutos de Cáscara": "🥜",
-    "Dióxido de Azufre y Sulfitos": "🍇"
+    "Gluten": "/icons/simbolo-alergeno-cereales.png",
+    "Lácteos": "/icons/simbolo-alergeno-lacteos.png",
+    "Huevos": "/icons/simbolo-alergeno-huevos.png",
+    "Soja": "/icons/simbolo-alergeno-soja.png",
+    "Mostaza": "/icons/simbolo-alergeno-mostaza.png",
+    "Pescado": "/icons/simbolo-pescado-alergenos.png",
+    "Crustáceos": "/icons/simbolo-alergeno-crustaceo.png",
+    "Moluscos": "/icons/simbolo-alergeno-moluscos.png",
+    "Apio": "/icons/simbolo-alergeno-apio.png",
+    "Frutos de Cáscara": "/icons/simbolo-alergeno-frutos-secos.png",
+    "Dióxido de Azufre y Sulfitos": "/icons/simbolo-alergeno-sulfitos.png",
+    "Altramuces": "/icons/simbolo-alergeno-altramuz.png",
+    "Sésamo": "/icons/simbolo-alergeno-sesamopng.png",
+    "Cacahuetes": "/icons/simbolo-alergeno-cacahuetes.png"
 };
 
 const Menu = () => {
@@ -69,7 +73,14 @@ const Menu = () => {
                 {items.filter(item => item.category === activeCategory).map(item => (
                     <div key={item.id} className="menu-card">
                         <div className="menu-card-image">
-                            <img src={item.image_url || 'https://via.placeholder.com/300x300?text=Gulah'} alt={item.name} />
+                            {item.image_url ? (
+                                <img src={item.image_url} alt={item.name} />
+                            ) : (
+                                <div className="no-image-placeholder">
+                                    <Flame size={40} />
+                                    <p>Imagen no disponible por el momento</p>
+                                </div>
+                            )}
                             {(item.is_new || item.is_promoted) && (
                                 <div className="badge-container">
                                     {item.is_new && <span className="badge badge-new">Novedad</span>}
@@ -83,9 +94,13 @@ const Menu = () => {
                                 <h3>{item.name}</h3>
                                 <div className="allergens">
                                     {(item.allergens || []).map(a => (
-                                        <span key={a} title={a} className="allergen-icon">
-                                            {ALLERGEN_ICONS[a] || "⚠️"}
-                                        </span>
+                                        <img
+                                            key={a}
+                                            src={ALLERGEN_ICONS[a] || "/icons/default.png"}
+                                            alt={a}
+                                            title={a}
+                                            className="allergen-icon-img"
+                                        />
                                     ))}
                                 </div>
                             </div>
