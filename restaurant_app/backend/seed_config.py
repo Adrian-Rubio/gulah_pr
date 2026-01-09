@@ -4,13 +4,14 @@ import os
 # Add the current directory to sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal
+from database import SessionLocal, engine
 import models
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 def seed_config():
+    models.Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     
     # Real data from the image
