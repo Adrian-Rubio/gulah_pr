@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 const ConfigContext = createContext();
 
@@ -16,7 +17,7 @@ export const ConfigProvider = ({ children }) => {
 
     const fetchConfig = async () => {
         try {
-            const res = await axios.get('http://localhost:8000/config');
+            const res = await axios.get(`${API_URL}/config`);
             if (Object.keys(res.data).length > 0) {
                 // Flatten contact_info if it exists or use direct keys
                 const newConfig = { ...siteConfig, ...res.data };
@@ -36,7 +37,7 @@ export const ConfigProvider = ({ children }) => {
 
     const updateConfigByKey = async (key, value) => {
         try {
-            await axios.post('http://localhost:8000/admin/config', { key, value });
+            await axios.post(`${API_URL}/admin/config`, { key, value });
             fetchConfig(); // Refresh after update
         } catch (err) {
             console.error("Error updating config", err);

@@ -59,6 +59,13 @@ def get_menu(db: Session = Depends(get_db)):
 def get_blog(db: Session = Depends(get_db)):
     return db.query(models.BlogPost).order_by(models.BlogPost.created_at.desc()).all()
 
+@app.get("/blog/{post_id}")
+def get_blog_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.BlogPost).filter(models.BlogPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
 @app.get("/config")
 def get_config(db: Session = Depends(get_db)):
     configs = db.query(models.SiteConfig).all()
@@ -196,6 +203,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         is_admin=user.is_admin,
         is_superuser=user.is_superuser
     )
+    db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user

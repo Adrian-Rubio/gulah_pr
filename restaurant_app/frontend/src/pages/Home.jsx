@@ -6,6 +6,7 @@ import MarqueeBanner from '../components/MarqueeBanner';
 import EditableText from '../components/Editable/EditableText';
 import EditableImage from '../components/Editable/EditableImage';
 import EditableButton from '../components/Editable/EditableButton';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
     const { siteConfig } = useConfig();
@@ -38,12 +39,39 @@ const Home = () => {
         setActiveFaq(activeFaq === index ? null : index);
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.8,
+                ease: [0.6, 0.05, -0.01, 0.9]
+            }
+        }
+    };
+
     return (
-        <div className="home-page fade-in">
+        <motion.div 
+            className="home-page"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+        >
             <MarqueeBanner />
 
             <section className="hero">
-                <div className="hero-content">
+                <motion.div className="hero-content" variants={itemVariants}>
                     <EditableText
                         configKey="welcomeTitle"
                         tag="h2"
@@ -65,7 +93,7 @@ const Home = () => {
                         tag="p"
                         className="fade-in-delay"
                     />
-                    <div className="hero-actions fade-in-delay-large">
+                    <motion.div className="hero-actions" variants={itemVariants}>
                         <EditableButton
                             configKey="heroBtn1"
                             defaultText="Ver la Carta"
@@ -78,19 +106,40 @@ const Home = () => {
                             defaultLink="/reservations"
                             className="btn-secondary"
                         />
-                    </div>
-                </div>
-                <div className="hero-image-container fade-in-delay">
+                    </motion.div>
+                </motion.div>
+                
+                <motion.div 
+                    className="hero-image-container"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                >
                     <EditableImage
                         configKey="heroImage"
                         defaultSrc="/images/home-hero-new.jpg"
                         alt="Plato estrella Gulah"
                         className="hero-image"
                     />
-                </div>
+                    <motion.div 
+                        className="hero-badge"
+                        initial={{ rotate: 0, scale: 0 }}
+                        animate={{ rotate: 15, scale: 1 }}
+                        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    >
+                        <span>NEW</span>
+                        <strong>OPEN!</strong>
+                    </motion.div>
+                </motion.div>
             </section>
 
-            <section className="faq-section fade-in">
+            <motion.section 
+                className="faq-section"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+            >
                 <div className="faq-grid">
                     <div className="faq-header">
                         <h2>FAQ'S</h2>
@@ -98,21 +147,36 @@ const Home = () => {
                     </div>
                     <div className="faq-list">
                         {faqs.map((faq, index) => (
-                            <div key={index} className={`faq-item ${activeFaq === index ? 'active' : ''}`}>
+                            <motion.div 
+                                key={index} 
+                                className={`faq-item ${activeFaq === index ? 'active' : ''}`}
+                                variants={itemVariants}
+                            >
                                 <button className="faq-question" onClick={() => toggleFaq(index)}>
                                     {faq.question}
                                     <Plus className="faq-icon" size={24} />
                                 </button>
-                                <div className="faq-answer">
-                                    <p>{faq.answer}</p>
-                                </div>
-                            </div>
+                                <AnimatePresence>
+                                    {activeFaq === index && (
+                                        <motion.div 
+                                            className="faq-answer"
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <p>{faq.answer}</p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
-            </section>
-        </div>
+            </motion.section>
+        </motion.div>
     );
 };
 
 export default Home;
+

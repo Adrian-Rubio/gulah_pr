@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Flame } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import EditableText from '../components/Editable/EditableText';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ALLERGEN_ICONS = {
     "Gluten": "/icons/simbolo-alergeno-cereales.png",
@@ -29,7 +31,7 @@ const Menu = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const res = await axios.get('http://localhost:8000/menu');
+                const res = await axios.get(`${API_URL}/menu`);
                 setItems(res.data);
                 setLoading(false);
             } catch (err) {
@@ -51,8 +53,30 @@ const Menu = () => {
         </div>
     );
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.5 }
+        }
+    };
+
     return (
-        <div className="menu-page fade-in">
+        <motion.div
+            className="menu-page"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+        >
             <div className="page-header">
                 <EditableText configKey="menuTitle" tag="h1" className="bold-title" />
                 <EditableText configKey="menuSubtitle" tag="p" className="subtitle" />
@@ -60,73 +84,90 @@ const Menu = () => {
 
             <div className="category-tabs">
                 {categories.map(cat => (
-                    <button
+                    <motion.button
                         key={cat}
                         className={activeCategory === cat ? 'active' : ''}
                         onClick={() => setActiveCategory(cat)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
                         {cat}
-                    </button>
+                    </motion.button>
                 ))}
             </div>
 
-            <div className="menu-grid">
-                {items.filter(item => item.category === activeCategory).map(item => (
-                    <div key={item.id} className="menu-card">
-                        <div className="menu-card-image">
-                            {item.image_url ? (
-                                <img src={item.image_url} alt={item.name} />
-                            ) : (
-                                <div className="no-image-placeholder">
-                                    <Flame size={40} />
-                                    <p>Imagen no disponible por el momento</p>
-                                </div>
-                            )}
-                            {(item.is_new || item.is_promoted) && (
-                                <div className="badge-container">
-                                    {item.is_new && <span className="badge badge-new">Novedad</span>}
-                                    {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="menu-card-content">
-                            <div className="header-row">
-                                <h3>{item.name}</h3>
-                                <div className="allergens">
-                                    {(item.allergens || []).map(a => (
-                                        <img
-                                            key={a}
-                                            src={ALLERGEN_ICONS[a] || "/icons/default.png"}
-                                            alt={a}
-                                            title={a}
-                                            className="allergen-icon-img"
-                                        />
-                                    ))}
-                                </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeCategory}
+                    className="menu-grid"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {items.filter(item => item.category === activeCategory).map(item => (
+                        <motion.div
+                            key={item.id}
+                            className="menu-card"
+                            variants={itemVariants}
+                            layout
+                        >
+                            <div className="menu-card-image">
+                                {item.image_url ? (
+                                    <img src={item.image_url} alt={item.name} />
+                                ) : (
+                                    <div className="no-image-placeholder">
+                                        <Flame size={40} />
+                                        <p>Imagen no disponible por el momento</p>
+                                    </div>
+                                )}
+                                {(item.is_new || item.is_promoted) && (
+                                    <div className="badge-container">
+                                        {item.is_new && <span className="badge badge-new">Novedad</span>}
+                                        {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
+                                    </div>
+                                )}
                             </div>
 
-                            <p className="description">{item.description}</p>
+                            <div className="menu-card-content">
+                                <div className="header-row">
+                                    <h3>{item.name}</h3>
+                                    <div className="allergens">
+                                        {(item.allergens || []).map(a => (
+                                            <img
+                                                key={a}
+                                                src={ALLERGEN_ICONS[a] || "/icons/default.png"}
+                                                alt={a}
+                                                title={a}
+                                                className="allergen-icon-img"
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
 
-                            <div className="footer-row">
-                                <span className="price">
-                                    {item.variants && item.variants.length > 0
-                                        ? `${formatPrice(item.variants[0].price)} / ${formatPrice(item.variants[1].price)}`
-                                        : formatPrice(item.base_price)
-                                    }
-                                </span>
+                                <p className="description">{item.description}</p>
+
+                                <div className="footer-row">
+                                    <span className="price">
+                                        {item.variants && item.variants.length > 0
+                                            ? `${formatPrice(item.variants[0].price)} / ${formatPrice(item.variants[1].price)}`
+                                            : formatPrice(item.base_price)
+                                        }
+                                    </span>
+                                </div>
                             </div>
+                        </motion.div>
+                    ))}
+                    {items.filter(item => item.category === activeCategory).length === 0 && (
+                        <div className="empty-state">
+                            <EditableText configKey="menuEmptyState" tag="p" />
                         </div>
-                    </div>
-                ))}
-                {items.filter(item => item.category === activeCategory).length === 0 && (
-                    <div className="empty-state">
-                        <EditableText configKey="menuEmptyState" tag="p" />
-                    </div>
-                )}
-            </div>
-        </div>
+                    )}
+                </motion.div>
+            </AnimatePresence>
+        </motion.div>
     );
 };
 
 export default Menu;
+

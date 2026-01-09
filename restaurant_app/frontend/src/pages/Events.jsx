@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import EditableText from '../components/Editable/EditableText';
 import { Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Events = () => {
     const [posts, setPosts] = useState([]);
@@ -10,7 +13,7 @@ const Events = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await axios.get('http://localhost:8000/blog');
+                const res = await axios.get(`${API_URL}/blog`);
                 setPosts(res.data);
                 setLoading(false);
             } catch (err) {
@@ -37,8 +40,30 @@ const Events = () => {
         </div>
     );
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.15 }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { y: 30, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.6, ease: "easeOut" }
+        }
+    };
+
     return (
-        <div className="blog-page fade-in">
+        <motion.div
+            className="blog-page"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+        >
             <div className="page-header">
                 <EditableText configKey="eventsTitle" tag="h2" className="bold-title" />
                 <EditableText configKey="eventsSubtitle" tag="p" className="subtitle" />
@@ -46,7 +71,12 @@ const Events = () => {
 
             <div className="blog-grid">
                 {posts.map(post => (
-                    <article key={post.id} className="blog-card menu-card">
+                    <motion.article
+                        key={post.id}
+                        className="blog-card menu-card"
+                        variants={cardVariants}
+                        whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                    >
                         <div className="menu-card-image">
                             <img src={post.image_url || '/images/default.jpg'} alt={post.title} />
                         </div>
@@ -55,10 +85,23 @@ const Events = () => {
                                 <Calendar size={14} /> {formatDate(post.created_at)}
                             </span>
                             <h3 style={{ margin: '1rem 0', fontSize: '1.6rem', textTransform: 'uppercase' }}>{post.title}</h3>
-                            <p className="description">{post.content}</p>
-                            <button className="btn-secondary" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>Leer más</button>
+                            <p className="description" style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                            }}>
+                                {post.content}
+                            </p>
+                            <Link
+                                to={`/events/${post.id}`}
+                                className="btn-secondary"
+                                style={{ alignSelf: 'flex-start', marginTop: 'auto' }}
+                            >
+                                Leer más
+                            </Link>
                         </div>
-                    </article>
+                    </motion.article>
                 ))}
             </div>
 
@@ -67,8 +110,9 @@ const Events = () => {
                     <p>No hay eventos programados en este momento. ¡Vuelve pronto!</p>
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 };
 
 export default Events;
+

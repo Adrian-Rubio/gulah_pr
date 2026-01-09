@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Camera, RefreshCw } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const EditableImage = ({ configKey, defaultSrc, alt = '', className = '', ...props }) => {
     const { siteConfig, updateConfigByKey, isEditMode } = useConfig();
@@ -20,7 +21,7 @@ const EditableImage = ({ configKey, defaultSrc, alt = '', className = '', ...pro
 
         try {
             // Updated to point to backend URL if needed, but assuming relative works if proxied
-            const res = await axios.post('http://localhost:8000/admin/upload', formData, {
+            const res = await axios.post(`${API_URL}/admin/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -28,7 +29,7 @@ const EditableImage = ({ configKey, defaultSrc, alt = '', className = '', ...pro
             // We need to make sure this is reachable.
             let uploadedUrl = res.data.url;
             if (uploadedUrl.startsWith('/')) {
-                uploadedUrl = `http://localhost:8000${uploadedUrl}`;
+                uploadedUrl = `${API_URL}${uploadedUrl}`;
             }
 
             await updateConfigByKey(configKey, uploadedUrl);

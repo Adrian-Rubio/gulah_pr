@@ -6,6 +6,7 @@ import Reservations from './pages/Reservations'
 import Events from './pages/Events'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
+import EventDetail from './pages/EventDetail'
 import { ConfigProvider } from './context/ConfigContext'
 import './App.css'
 
@@ -28,6 +29,7 @@ function App() {
                             <Route path="/events" element={<Events />} />
                             <Route path="/admin" element={<AdminLogin />} />
                             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                            <Route path="/events/:id" element={<EventDetail />} />
                         </Routes>
                     </main>
                     <EditModeIndicator />
