@@ -29,8 +29,8 @@ CREATE TABLE menu_items (
 	is_promoted BOOLEAN, 
 	is_new BOOLEAN
 );
-INSERT INTO "menu_items" VALUES(1,'CRISPY WINGS','Alitas MUY CRUJIENTES. Puedes elegir una de nuestras salsas como extra para mojar.',9.9,'ENTRANTES','/images/Wings.jpeg','["Gluten"]','[]','[]',1,0,0);
-INSERT INTO "menu_items" VALUES(2,'CHILI CHEESE BITES','Jalapeños rellenos de queso cheddar.',9.35,'ENTRANTES','/images/chili cheese bites.jpeg','["L\u00e1cteos", "Gluten"]','[]','[]',1,0,0);
+INSERT INTO "menu_items" VALUES(1,'CRISPY WINGS','Alitas MUY CRUJIENTES. Puedes elegir una de nuestras salsas como extra para mojar.',9.9,'ENTRANTES','/images/Wings.jpeg','["Gluten"]','[]','[]',true,false,false);
+INSERT INTO "menu_items" VALUES(2,'CHILI CHEESE BITES','Jalapeños rellenos de queso cheddar.',9.35,'ENTRANTES','/images/chili cheese bites.jpeg','["L\u00e1cteos", "Gluten"]','[]','[]',true,false,false);
 INSERT INTO "menu_items" VALUES(3,'CHICKEN CHURROS','Churros y fingers de pollo sobre salsa de queso de cabra y sirope de arce.',12.2,'ENTRANTES',NULL,'["L\u00e1cteos", "Gluten"]','[]','[]',true,false,false);
 INSERT INTO "menu_items" VALUES(4,'ONION RINGS','Aros de cebolla a la cerveza con nuestra salsa sureña especial.',10.0,'ENTRANTES',NULL,'["Gluten"]','[]','[]',true,false,false);
 INSERT INTO "menu_items" VALUES(5,'ALITAS DEL INFIERNO','Alitas crujientes para amantes del picante.',13.0,'ENTRANTES','/images/alitas infierno.jpeg','["L\u00e1cteos", "Gluten", "Huevos"]','[]','[]',true,false,false);
