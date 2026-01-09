@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config';
 import EditableText from '../components/Editable/EditableText';
 import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -13,7 +12,7 @@ const Events = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await axios.get(`${API_URL}/blog`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/blog`);
                 setPosts(res.data);
                 setLoading(false);
             } catch (err) {

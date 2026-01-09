@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config';
 
 const ConfigContext = createContext();
 
@@ -12,12 +11,13 @@ export const ConfigProvider = ({ children }) => {
         phone: '+34 912 345 678',
         email: 'info@gulahpoboys.com',
         reservation_email: 'reservas@gulahpoboys.com',
-        hours: 'Lunes a Viernes: 10 am - 24 pm | Sábados y Domingos: 13 pm - 24 pm'
+        hours: 'Lunes a Viernes: 10am-24pm | Sábados y Domingos: 13pm-24pm'
     });
 
     const fetchConfig = async () => {
         try {
-            const res = await axios.get(`${API_URL}/config`);
+            console.log("Fetching config from:", `${import.meta.env.VITE_API_URL}/config`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/config`);
             if (Object.keys(res.data).length > 0) {
                 // Flatten contact_info if it exists or use direct keys
                 const newConfig = { ...siteConfig, ...res.data };
@@ -27,7 +27,9 @@ export const ConfigProvider = ({ children }) => {
                 setSiteConfig(newConfig);
             }
         } catch (err) {
-            console.error("Error fetching config", err);
+            console.error("CRITICAL: Error fetching config from", `${import.meta.env.VITE_API_URL}/config`);
+            console.error("Please ensure the backend is running and listening on 0.0.0.0:8000");
+            console.error(err);
         }
     };
 
@@ -37,7 +39,7 @@ export const ConfigProvider = ({ children }) => {
 
     const updateConfigByKey = async (key, value) => {
         try {
-            await axios.post(`${API_URL}/admin/config`, { key, value });
+            await axios.post(`${import.meta.env.VITE_API_URL}/admin/config`, { key, value });
             fetchConfig(); // Refresh after update
         } catch (err) {
             console.error("Error updating config", err);

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Flame } from 'lucide-react';
 import axios from 'axios';
-import { API_URL } from '../config';
 import EditableText from '../components/Editable/EditableText';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -31,7 +30,7 @@ const Menu = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const res = await axios.get(`${API_URL}/menu`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/menu`);
                 setItems(res.data);
                 setLoading(false);
             } catch (err) {
