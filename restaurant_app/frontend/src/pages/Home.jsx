@@ -56,13 +56,13 @@ const Home = () => {
             opacity: 1,
             transition: {
                 duration: 0.8,
-                ease: [0.6, 0.05, -0.01, 0.9]
+                ease: [0.6, 0.05, 0.1, 0.9]
             }
         }
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="home-page"
             initial="hidden"
             animate="visible"
@@ -108,8 +108,8 @@ const Home = () => {
                         />
                     </motion.div>
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                     className="hero-image-container"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -121,7 +121,7 @@ const Home = () => {
                         alt="Plato estrella Gulah"
                         className="hero-image"
                     />
-                    <motion.div 
+                    <motion.div
                         className="hero-badge"
                         initial={{ rotate: 0, scale: 0 }}
                         animate={{ rotate: 15, scale: 1 }}
@@ -133,7 +133,7 @@ const Home = () => {
                 </motion.div>
             </section>
 
-            <motion.section 
+            <motion.section
                 className="faq-section"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -147,8 +147,8 @@ const Home = () => {
                     </div>
                     <div className="faq-list">
                         {faqs.map((faq, index) => (
-                            <motion.div 
-                                key={index} 
+                            <motion.div
+                                key={index}
                                 className={`faq-item ${activeFaq === index ? 'active' : ''}`}
                                 variants={itemVariants}
                             >
@@ -158,7 +158,7 @@ const Home = () => {
                                 </button>
                                 <AnimatePresence>
                                     {activeFaq === index && (
-                                        <motion.div 
+                                        <motion.div
                                             className="faq-answer"
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: "auto", opacity: 1 }}
