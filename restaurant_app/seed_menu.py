@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:8000/admin/menu"
+BASE_URL = "http://192.168.0.221:8000/admin/menu"
 
 menu_data = [
     # ENTRANTES
