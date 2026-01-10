@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://localhost:8000/admin/menu"
+BASE_URL = "http://192.168.0.221:8000/admin/menu"
 
 # Known image files from the move operation
 image_files = [
