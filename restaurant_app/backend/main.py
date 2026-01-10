@@ -28,6 +28,24 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+from sqlalchemy import text
+
+@app.on_event("startup")
+async def startup_event():
+    # Sync PostgreSQL sequences if using Postgres
+    if "postgresql" in str(engine.url):
+        try:
+            with engine.connect() as conn:
+                # Sync sequence for menu_items
+                conn.execute(text("SELECT setval('menu_items_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM menu_items), false)"))
+                # Sync sequence for other tables if needed
+                conn.execute(text("SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM users), false)"))
+                conn.execute(text("SELECT setval('blog_posts_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM blog_posts), false)"))
+                conn.commit()
+                print("PostgreSQL sequences synchronized.")
+        except Exception as e:
+            print(f"Error synchronizing sequences: {e}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

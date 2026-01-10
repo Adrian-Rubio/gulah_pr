@@ -105,61 +105,65 @@ const Menu = () => {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => (
-                        <motion.div
-                            key={item.id}
-                            className="menu-card"
-                            variants={itemVariants}
-                            layout
-                        >
-                            <div className="menu-card-image">
-                                {item.image_url ? (
-                                    <img src={item.image_url} alt={item.name} />
-                                ) : (
-                                    <div className="no-image-placeholder">
-                                        <Flame size={40} />
-                                        <p>Imagen no disponible por el momento</p>
-                                    </div>
-                                )}
-                                {(item.is_new || item.is_promoted) && (
-                                    <div className="badge-container">
-                                        {item.is_new && <span className="badge badge-new">Novedad</span>}
-                                        {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
-                                    </div>
-                                )}
-                            </div>
+                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => {
+                        const safeAllergens = Array.isArray(item.allergens) ? item.allergens : (typeof item.allergens === 'string' ? JSON.parse(item.allergens || '[]') : []);
+                        const safeVariants = Array.isArray(item.variants) ? item.variants : (typeof item.variants === 'string' ? JSON.parse(item.variants || '[]') : []);
 
-                            <div className="menu-card-content">
-                                <div className="header-row">
-                                    <h3>{item.name}</h3>
-                                    <div className="allergens">
-                                        {(item.allergens || []).map(a => (
-                                            <img
-                                                key={a}
-                                                src={ALLERGEN_ICONS[a] || "/icons/default.png"}
-                                                alt={a}
-                                                title={a}
-                                                className="allergen-icon-img"
-                                            />
-                                        ))}
-                                    </div>
+                        return (
+                            <motion.div
+                                key={item.id}
+                                className="menu-card"
+                                variants={itemVariants}
+                            >
+                                <div className="menu-card-image">
+                                    {item.image_url ? (
+                                        <img src={item.image_url} alt={item.name} />
+                                    ) : (
+                                        <div className="no-image-placeholder">
+                                            <Flame size={40} />
+                                            <p>Imagen no disponible por el momento</p>
+                                        </div>
+                                    )}
+                                    {(item.is_new || item.is_promoted) && (
+                                        <div className="badge-container">
+                                            {item.is_new && <span className="badge badge-new">Novedad</span>}
+                                            {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
+                                        </div>
+                                    )}
                                 </div>
 
-                                <p className="description">{item.description}</p>
+                                <div className="menu-card-content">
+                                    <div className="header-row">
+                                        <h3>{item.name}</h3>
+                                        <div className="allergens">
+                                            {(safeAllergens || []).map((a, idx) => (
+                                                <img
+                                                    key={`${item.id}-alg-${idx}`}
+                                                    src={ALLERGEN_ICONS[a] || "/icons/default.png"}
+                                                    alt={a}
+                                                    title={a}
+                                                    className="allergen-icon-img"
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
 
-                                <div className="footer-row">
-                                    <span className="price">
-                                        {item.variants && item.variants.length >= 2
-                                            ? `${formatPrice(item.variants[0].price)} / ${formatPrice(item.variants[1].price)}`
-                                            : item.variants && item.variants.length === 1
-                                                ? formatPrice(item.variants[0].price)
-                                                : formatPrice(item.base_price)
-                                        }
-                                    </span>
+                                    <p className="description">{item.description}</p>
+
+                                    <div className="footer-row">
+                                        <span className="price">
+                                            {safeVariants && safeVariants.length >= 2
+                                                ? `${formatPrice(safeVariants[0]?.price)} / ${formatPrice(safeVariants[1]?.price)}`
+                                                : safeVariants && safeVariants.length === 1
+                                                    ? formatPrice(safeVariants[0]?.price)
+                                                    : formatPrice(item.base_price)
+                                            }
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        );
+                    })}
                     {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
                         <div className="empty-state">
                             <EditableText configKey="menuEmptyState" tag="p" />
