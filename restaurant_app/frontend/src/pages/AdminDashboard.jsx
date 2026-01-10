@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff } from 'lucide-react';
+import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -51,6 +51,7 @@ const AdminDashboard = () => {
         const [items, setItems] = useState([]);
         const [loading, setLoading] = useState(true);
         const [showAddForm, setShowAddForm] = useState(false);
+        const [isMenuUploading, setIsMenuUploading] = useState(false);
         const [newItem, setNewItem] = useState({
             name: '', description: '', base_price: 0, category: 'ENTRANTES',
             image_url: '', allergens: [], variants: [], tags: [], is_promoted: false, is_new: false, is_active: true
@@ -83,6 +84,28 @@ const AdminDashboard = () => {
             if (window.confirm("¿Seguro que quieres borrar este plato?")) {
                 await axios.delete(`${import.meta.env.VITE_API_URL}/admin/menu/${id}`);
                 fetchItems();
+            }
+        };
+
+        const handleMenuImageUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            setIsMenuUploading(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/upload`, formData);
+                let url = res.data.url;
+                // Si la URL es relativa, le concatenamos el backend para que sea accesible
+                if (url.startsWith('/')) url = `${import.meta.env.VITE_API_URL}${url}`;
+                setNewItem({ ...newItem, image_url: url });
+            } catch (err) {
+                console.error("Error subiendo imagen:", err);
+                alert("Error al subir la imagen");
+            } finally {
+                setIsMenuUploading(false);
             }
         };
 
@@ -140,8 +163,26 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label>URL de la Imagen</label>
-                                <input type="text" placeholder="/images/plato.jpeg o https://..." value={newItem.image_url} onChange={e => setNewItem({ ...newItem, image_url: e.target.value })} />
+                                <label>Imagen del Plato</label>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleMenuImageUpload}
+                                        className="file-input"
+                                    />
+                                    {isMenuUploading && <RefreshCw className="animate-spin" size={20} />}
+                                    {newItem.image_url && (
+                                        <img
+                                            src={newItem.image_url}
+                                            alt="Preview"
+                                            style={{ height: '50px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                        />
+                                    )}
+                                </div>
+                                <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '5px' }}>
+                                    Selecciona una foto de tu equipo para subirla directamente.
+                                </p>
                             </div>
                             <div className="form-group">
                                 <label>Descripción</label>
