@@ -31,7 +31,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,  # Changed from True because allow_origins=["*"] is not compatible with True
     allow_methods=["*"],
     allow_headers=["*"],
 )

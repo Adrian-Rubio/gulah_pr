@@ -42,6 +42,7 @@ const Menu = () => {
     }, []);
 
     const formatPrice = (price) => {
+        if (price === undefined || price === null || isNaN(price)) return '0,00 €';
         return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
     };
 
@@ -104,7 +105,7 @@ const Menu = () => {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {items.filter(item => item.category === activeCategory).map(item => (
+                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => (
                         <motion.div
                             key={item.id}
                             className="menu-card"
@@ -148,16 +149,18 @@ const Menu = () => {
 
                                 <div className="footer-row">
                                     <span className="price">
-                                        {item.variants && item.variants.length > 0
+                                        {item.variants && item.variants.length >= 2
                                             ? `${formatPrice(item.variants[0].price)} / ${formatPrice(item.variants[1].price)}`
-                                            : formatPrice(item.base_price)
+                                            : item.variants && item.variants.length === 1
+                                                ? formatPrice(item.variants[0].price)
+                                                : formatPrice(item.base_price)
                                         }
                                     </span>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
-                    {items.filter(item => item.category === activeCategory).length === 0 && (
+                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
                         <div className="empty-state">
                             <EditableText configKey="menuEmptyState" tag="p" />
                         </div>

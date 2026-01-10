@@ -68,6 +68,7 @@ const AdminDashboard = () => {
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching menu", err);
+                setLoading(false);
             }
         };
 
@@ -190,7 +191,15 @@ const AdminDashboard = () => {
                             </div>
                             <div className="form-group">
                                 <label>Precio Base (€)</label>
-                                <input type="number" step="0.01" value={newItem.base_price} onChange={e => setNewItem({ ...newItem, base_price: parseFloat(e.target.value) })} />
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={isNaN(newItem.base_price) ? '' : newItem.base_price}
+                                    onChange={e => {
+                                        const val = parseFloat(e.target.value);
+                                        setNewItem({ ...newItem, base_price: isNaN(val) ? 0 : val });
+                                    }}
+                                />
                             </div>
                             <div className="actions" style={{ display: 'flex', gap: '1rem' }}>
                                 <button type="submit" className="btn-primary">Guardar Plato</button>
@@ -207,7 +216,10 @@ const AdminDashboard = () => {
                                 <img
                                     className="mini-preview"
                                     src={item.image_url || '/images/default.jpg'}
-                                    onError={(e) => e.target.src = 'https://via.placeholder.com/80?text=Gulah'}
+                                    onError={(e) => {
+                                        console.warn("Image load failed:", e.target.src);
+                                        e.target.src = 'https://placehold.co/80x80?text=Gulah';
+                                    }}
                                     alt=""
                                 />
                                 <div className="info">
