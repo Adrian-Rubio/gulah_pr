@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff, RefreshCw, Type } from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -33,6 +33,12 @@ const AdminDashboard = () => {
         hours: siteConfig.hours || ''
     });
 
+    const [typographyConfig, setTypographyConfig] = useState({
+        primaryFont: siteConfig.typography?.primaryFont || "'Outfit', sans-serif",
+        secondaryFont: siteConfig.typography?.secondaryFont || "'Roboto', sans-serif",
+        baseFontSize: siteConfig.typography?.baseFontSize || '16px'
+    });
+
     useEffect(() => {
         setHeroConfig({
             welcomeTitle: siteConfig.welcomeTitle || '',
@@ -45,7 +51,17 @@ const AdminDashboard = () => {
             reservation_email: siteConfig.reservation_email || '',
             hours: siteConfig.hours || ''
         });
+        setTypographyConfig({
+            primaryFont: siteConfig.typography?.primaryFont || "'Outfit', sans-serif",
+            secondaryFont: siteConfig.typography?.secondaryFont || "'Roboto', sans-serif",
+            baseFontSize: siteConfig.typography?.baseFontSize || '16px'
+        });
     }, [siteConfig]);
+
+    const handleSaveTypography = async () => {
+        await updateConfigByKey('typography', typographyConfig);
+        alert('Configuración de tipografía guardada');
+    };
 
     const MenuManager = () => {
         const [items, setItems] = useState([]);
@@ -63,7 +79,7 @@ const AdminDashboard = () => {
 
         const fetchItems = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/menu`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/menu/admin`);
                 setItems(res.data);
                 setLoading(false);
             } catch (err) {
@@ -74,7 +90,7 @@ const AdminDashboard = () => {
 
         const handleToggle = async (id, field, value) => {
             try {
-                await axios.patch(`${import.meta.env.VITE_API_URL}/admin/menu/${id}/status`, { [field]: value });
+                await axios.patch(`${import.meta.env.VITE_API_URL}/menu/admin/${id}/status`, { [field]: value });
                 fetchItems();
             } catch (err) {
                 alert("Error updating item");
@@ -83,7 +99,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Seguro que quieres borrar este plato?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/admin/menu/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/menu/admin/${id}`);
                 fetchItems();
             }
         };
@@ -113,7 +129,7 @@ const AdminDashboard = () => {
         const handleAddSubmit = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/admin/menu`, newItem);
+                await axios.post(`${import.meta.env.VITE_API_URL}/menu/admin`, newItem);
                 setShowAddForm(false);
                 fetchItems();
                 setNewItem({
@@ -274,7 +290,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Borrar este evento?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/admin/blog/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/blog/admin/${id}`);
                 fetchPosts();
             }
         };
@@ -282,7 +298,7 @@ const AdminDashboard = () => {
         const handleAddSubmit = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/admin/blog`, newPost);
+                await axios.post(`${import.meta.env.VITE_API_URL}/blog/admin`, newPost);
                 setShowAddForm(false);
                 fetchPosts();
                 setNewPost({ title: '', content: '', image_url: '' });
@@ -371,7 +387,7 @@ const AdminDashboard = () => {
 
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/users`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/users`);
                 setUsers(res.data);
             } catch (err) {
                 console.error("Error fetching users", err);
@@ -381,7 +397,7 @@ const AdminDashboard = () => {
         const handleCreate = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/admin/users`, newUser);
+                await axios.post(`${import.meta.env.VITE_API_URL}/auth/users`, newUser);
                 setShowAdd(false);
                 fetchUsers();
                 setNewUser({ username: '', password: '', is_superuser: false });
@@ -394,7 +410,7 @@ const AdminDashboard = () => {
             e.preventDefault();
             try {
                 // We send the whole object, backend handles password if not empty
-                await axios.put(`${import.meta.env.VITE_API_URL}/admin/users/${editingUser.id}`, editingUser);
+                await axios.put(`${import.meta.env.VITE_API_URL}/auth/users/${editingUser.id}`, editingUser);
                 setEditingUser(null);
                 fetchUsers();
             } catch (err) {
@@ -404,7 +420,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Borrar este usuario?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/admin/users/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/auth/users/${id}`);
                 fetchUsers();
             }
         };
@@ -554,6 +570,9 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'reservations' ? 'active' : ''} onClick={() => setActiveTab('reservations')}>
                         <Clock size={20} /> Reservas
                     </button>
+                    <button className={activeTab === 'typography' ? 'active' : ''} onClick={() => setActiveTab('typography')}>
+                        <Type size={20} /> Tipografía
+                    </button>
                     {currentUser.is_superuser && (
                         <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
                             <Users size={20} /> Usuarios
@@ -570,7 +589,8 @@ const AdminDashboard = () => {
                                 activeTab === 'contact' ? 'Contacto y Horarios' :
                                     activeTab === 'menu' ? 'Gestión de la Carta' :
                                         activeTab === 'events' ? 'Eventos y Journal' :
-                                            activeTab === 'users' ? 'Gestión de Usuarios' : 'Control de Reservas'}
+                                            activeTab === 'users' ? 'Gestión de Usuarios' :
+                                                activeTab === 'typography' ? 'Tipografía y Estilo' : 'Control de Reservas'}
                     </h2>
                     {(activeTab === 'config') && (
                         <button className="btn-primary" onClick={handleSaveHero}>
@@ -580,6 +600,11 @@ const AdminDashboard = () => {
                     {(activeTab === 'contact') && (
                         <button className="btn-primary" onClick={handleSaveContact}>
                             <Save size={18} /> Guardar Contacto
+                        </button>
+                    )}
+                    {(activeTab === 'typography') && (
+                        <button className="btn-primary" onClick={handleSaveTypography}>
+                            <Save size={18} /> Guardar Tipografía
                         </button>
                     )}
                 </header>
@@ -690,6 +715,57 @@ const AdminDashboard = () => {
 
                 {activeTab === 'users' && currentUser.is_superuser && (
                     <UsersManager />
+                )}
+
+                {activeTab === 'typography' && (
+                    <div className="glass-card config-form fade-in">
+                        <div className="form-group">
+                            <label>Fuente Principal (Títulos)</label>
+                            <select
+                                value={typographyConfig.primaryFont}
+                                onChange={(e) => setTypographyConfig({ ...typographyConfig, primaryFont: e.target.value })}
+                            >
+                                <option value="'Outfit', sans-serif">Outfit (Moderna)</option>
+                                <option value="'Playfair Display', serif">Playfair (Elegante)</option>
+                                <option value="'Inter', sans-serif">Inter (Limpia)</option>
+                                <option value="'Courier New', monospace">Courier (Máquina de escribir)</option>
+                                <option value="'Montserrat', sans-serif">Montserrat (Geométrica)</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Fuente Secundaria (Cuerpo de texto)</label>
+                            <select
+                                value={typographyConfig.secondaryFont}
+                                onChange={(e) => setTypographyConfig({ ...typographyConfig, secondaryFont: e.target.value })}
+                            >
+                                <option value="'Inter', sans-serif">Inter (Limpia)</option>
+                                <option value="'Roboto', sans-serif">Roboto (Estándar)</option>
+                                <option value="'Open Sans', sans-serif">Open Sans (Legible)</option>
+                                <option value="'Georgia', serif">Georgia (Clásica)</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Tamaño de letra base ({typographyConfig.baseFontSize})</label>
+                            <input
+                                type="range"
+                                min="12"
+                                max="24"
+                                value={parseInt(typographyConfig.baseFontSize)}
+                                onChange={(e) => setTypographyConfig({ ...typographyConfig, baseFontSize: `${e.target.value}px` })}
+                            />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#666' }}>
+                                <span>Pequeña (12px)</span>
+                                <span>Grande (24px)</span>
+                            </div>
+                        </div>
+
+                        <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f9f9f9', borderRadius: '12px', border: '1px dashed #ddd' }}>
+                            <h4 style={{ fontFamily: typographyConfig.primaryFont, marginBottom: '0.5rem' }}>Vista previa de título</h4>
+                            <p style={{ fontFamily: typographyConfig.secondaryFont, fontSize: typographyConfig.baseFontSize }}>
+                                Este es un texto de ejemplo para que veas cómo queda la combinación de fuentes y el tamaño elegido en tu web.
+                            </p>
+                        </div>
+                    </div>
                 )}
             </main>
         </div>

@@ -15,7 +15,7 @@ const AdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/login`, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
                 username,
                 password
             });

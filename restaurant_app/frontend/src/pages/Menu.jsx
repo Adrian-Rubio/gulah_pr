@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Flame } from 'lucide-react';
 import axios from 'axios';
 import EditableText from '../components/Editable/EditableText';
 import { motion, AnimatePresence } from 'framer-motion';
+import MenuCard from '../components/MenuCard';
 
 const ALLERGEN_ICONS = {
     "Gluten": "/icons/simbolo-alergeno-cereales.png",
@@ -23,11 +23,19 @@ const ALLERGEN_ICONS = {
 
 const PREFERRED_ORDER = ['ENTRANTES', 'PO BOYS', 'PATATAS', 'ENSALADAS', 'BRIOCHE', 'POSTRES', 'SALSAS'];
 
+/**
+ * Menu Page Component
+ * Fetches and displays menu items categorized by tabs.
+ * Supports dynamic categories from the database.
+ */
 const Menu = () => {
     const [activeCategory, setActiveCategory] = useState('ENTRANTES');
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    /**
+     * Calculates unique categories from items, sorted by preferred order.
+     */
     const categories = useMemo(() => {
         if (!items.length) return [];
         const uniqueCats = [...new Set(items.map(item => (item.category || "VARIOS").trim().toUpperCase()))];
@@ -41,6 +49,9 @@ const Menu = () => {
         });
     }, [items]);
 
+    /**
+     * Fetch menu items on mount.
+     */
     useEffect(() => {
         const fetchMenu = async () => {
             try {
@@ -55,17 +66,18 @@ const Menu = () => {
         fetchMenu();
     }, []);
 
+    /**
+     * Ensures an active category is always selected when items load.
+     */
     useEffect(() => {
-        if (categories.length > 0) {
-            // Si la categoría activa no existe en las categorías actuales, 
-            // o si todavía es el valor por defecto 'ENTRANTES' y 'ENTRANTES' no está en la lista (pero otras sí),
-            // cambiamos a la primera disponible.
-            if (!categories.includes(activeCategory)) {
-                setActiveCategory(categories[0]);
-            }
+        if (categories.length > 0 && !categories.includes(activeCategory)) {
+            setActiveCategory(categories[0]);
         }
     }, [categories, activeCategory]);
 
+    /**
+     * Formats prices to EUR currency format.
+     */
     const formatPrice = (price) => {
         if (price === undefined || price === null || isNaN(price)) return '0,00 €';
         return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
@@ -78,30 +90,8 @@ const Menu = () => {
         </div>
     );
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: { duration: 0.5 }
-        }
-    };
-
     return (
-        <motion.div
-            className="menu-page"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-        >
+        <div className="menu-page">
             <div className="page-header">
                 <EditableText configKey="menuTitle" tag="h1" className="bold-title" />
                 <EditableText configKey="menuSubtitle" tag="p" className="subtitle" />
@@ -121,93 +111,35 @@ const Menu = () => {
                 ))}
             </div>
 
-            {/* Diagnóstico sencillo (puedes borrar esto cuando funcione) */}
-            <div style={{ fontSize: '10px', opacity: 0.5, textAlign: 'center', marginBottom: '10px' }}>
-                Total: {items.length} | Cat: {activeCategory} | Items aquí: {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length}
-            </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeCategory}
+                    className="menu-grid"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {items
+                        .filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase())
+                        .map(item => (
+                            <MenuCard
+                                key={item.id}
+                                item={item}
+                                formatPrice={formatPrice}
+                                ALLERGEN_ICONS={ALLERGEN_ICONS}
+                            />
+                        ))}
+                </motion.div>
+            </AnimatePresence>
 
-            <div className="menu-grid">
-                {items
-                    .filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase())
-                    .map(item => {
-                        try {
-                            const safeAllergens = Array.isArray(item.allergens)
-                                ? item.allergens
-                                : (typeof item.allergens === 'string'
-                                    ? JSON.parse(item.allergens || '[]')
-                                    : []);
-
-                            const safeVariants = Array.isArray(item.variants)
-                                ? item.variants
-                                : (typeof item.variants === 'string'
-                                    ? JSON.parse(item.variants || '[]')
-                                    : []);
-
-                            return (
-                                <div key={item.id} className="menu-card">
-                                    <div className="menu-card-image">
-                                        {item.image_url ? (
-                                            <img src={item.image_url} alt={item.name} />
-                                        ) : (
-                                            <div className="no-image-placeholder">
-                                                <Flame size={40} />
-                                                <p>Imagen no disponible</p>
-                                            </div>
-                                        )}
-                                        {(item.is_new || item.is_promoted) && (
-                                            <div className="badge-container">
-                                                {item.is_new && <span className="badge badge-new">Novedad</span>}
-                                                {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="menu-card-content">
-                                        <div className="header-row">
-                                            <h3>{item.name || 'Sin nombre'}</h3>
-                                            <div className="allergens">
-                                                {(safeAllergens || []).map((a, idx) => (
-                                                    <img
-                                                        key={`${item.id}-alg-${idx}`}
-                                                        src={ALLERGEN_ICONS[a] || "/icons/default.png"}
-                                                        alt={a}
-                                                        title={a}
-                                                        className="allergen-icon-img"
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <p className="description">{item.description || 'Sin descripción'}</p>
-
-                                        <div className="footer-row">
-                                            <span className="price">
-                                                {safeVariants && safeVariants.length >= 2
-                                                    ? `${formatPrice(safeVariants[0]?.price)} / ${formatPrice(safeVariants[1]?.price)}`
-                                                    : safeVariants && safeVariants.length === 1
-                                                        ? formatPrice(safeVariants[0]?.price)
-                                                        : formatPrice(item.base_price)
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        } catch (e) {
-                            console.error("Error renderizando item", item, e);
-                            return null;
-                        }
-                    })}
-            </div>
-
-            {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
+            {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && !loading && (
                 <div className="empty-state">
                     <EditableText configKey="menuEmptyState" tag="p" />
                 </div>
             )}
-        </motion.div>
+        </div>
     );
 };
 
 export default Menu;
-

@@ -18,10 +18,18 @@
     --text: #2d2d2d;
     --text-muted: #666666;
     --accent: var(--vermilion);
-    --font-main: 'Inter', sans-serif;
-    --font-bold: 'Outfit', sans-serif;
+
+    /* Dynamic Typography Variables */
+    --font-primary: 'Inter', sans-serif;
+    --font-secondary: 'Outfit', sans-serif;
+    --base-font-size: 16px;
+
+    /* Legacy Font Variables (keeping for compatibility during transition) */
+    --font-main: var(--font-primary);
+    --font-bold: var(--font-secondary);
     --font-elegant: 'Playfair Display', serif;
     --font-modern: 'Montserrat', sans-serif;
+    
     --max-width: 1200px;
     --radius: 20px;
     --radius-sm: 12px;
@@ -36,10 +44,11 @@
 }
 
 body {
-    font-family: var(--font-main);
+    font-family: var(--font-primary);
     background-color: var(--background);
     color: var(--text);
     line-height: 1.6;
+    font-size: var(--base-font-size);
     -webkit-font-smoothing: antialiased;
 }
 

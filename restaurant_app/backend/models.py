@@ -4,6 +4,9 @@ from database import Base
 import datetime
 
 class User(Base):
+    """
+    Represents a system user with authentication and permission levels.
+    """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -12,21 +15,28 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
 
 class MenuItem(Base):
+    """
+    Represents a food or drink item in the restaurant menu.
+    Includes classification, pricing, allergens, and availability status.
+    """
     __tablename__ = "menu_items"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(Text)
     base_price = Column(Float)
-    category = Column(String)  # e.g., ENTRANTES, PO BOYS, etc.
+    category = Column(String)
     image_url = Column(String, nullable=True)
-    allergens = Column(JSON, default=[])  # e.g., ["Gluten", "Lácteos"]
-    variants = Column(JSON, default=[])   # e.g., [{"name": "Regular", "price": 12.50}, {"name": "XL", "price": 14.50}]
-    tags = Column(JSON, default=[])       # e.g., ["PICANTE", "VEGGIE"]
+    allergens = Column(JSON, default=[])
+    variants = Column(JSON, default=[])
+    tags = Column(JSON, default=[])
     is_active = Column(Boolean, default=True)
     is_promoted = Column(Boolean, default=False)
     is_new = Column(Boolean, default=False)
 
 class Reservation(Base):
+    """
+    Represents a customer table reservation.
+    """
     __tablename__ = "reservations"
     id = Column(Integer, primary_key=True, index=True)
     customer_name = Column(String)
@@ -34,9 +44,12 @@ class Reservation(Base):
     customer_phone = Column(String)
     date_time = Column(DateTime)
     guests = Column(Integer)
-    status = Column(String, default="pending") # pending, confirmed, cancelled
+    status = Column(String, default="pending")
 
 class BlogPost(Base):
+    """
+    Represents an entry in the restaurant's news or event journal.
+    """
     __tablename__ = "blog_posts"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
@@ -46,7 +59,11 @@ class BlogPost(Base):
     image_url = Column(String, nullable=True)
 
 class SiteConfig(Base):
+    """
+    Stores dynamic site settings and content (typography, contact info, etc.) 
+    as key-value pairs where value is a JSON-serializable object.
+    """
     __tablename__ = "site_configs"
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String, unique=True, index=True)
-    value = Column(JSON) # Store dynamic config like colors, banner text, etc.
+    value = Column(JSON)
