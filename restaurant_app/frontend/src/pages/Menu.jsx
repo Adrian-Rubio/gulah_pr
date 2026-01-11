@@ -121,81 +121,90 @@ const Menu = () => {
                 ))}
             </div>
 
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeCategory}
-                    className="menu-grid"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => {
-                        const safeAllergens = Array.isArray(item.allergens) ? item.allergens : (typeof item.allergens === 'string' ? JSON.parse(item.allergens || '[]') : []);
-                        const safeVariants = Array.isArray(item.variants) ? item.variants : (typeof item.variants === 'string' ? JSON.parse(item.variants || '[]') : []);
+            {/* Diagnóstico sencillo (puedes borrar esto cuando funcione) */}
+            <div style={{ fontSize: '10px', opacity: 0.5, textAlign: 'center', marginBottom: '10px' }}>
+                Total: {items.length} | Cat: {activeCategory} | Items aquí: {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length}
+            </div>
 
-                        return (
-                            <motion.div
-                                key={item.id}
-                                className="menu-card"
-                                variants={itemVariants}
-                            >
-                                <div className="menu-card-image">
-                                    {item.image_url ? (
-                                        <img src={item.image_url} alt={item.name} />
-                                    ) : (
-                                        <div className="no-image-placeholder">
-                                            <Flame size={40} />
-                                            <p>Imagen no disponible por el momento</p>
-                                        </div>
-                                    )}
-                                    {(item.is_new || item.is_promoted) && (
-                                        <div className="badge-container">
-                                            {item.is_new && <span className="badge badge-new">Novedad</span>}
-                                            {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
-                                        </div>
-                                    )}
-                                </div>
+            <div className="menu-grid">
+                {items
+                    .filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase())
+                    .map(item => {
+                        try {
+                            const safeAllergens = Array.isArray(item.allergens)
+                                ? item.allergens
+                                : (typeof item.allergens === 'string'
+                                    ? JSON.parse(item.allergens || '[]')
+                                    : []);
 
-                                <div className="menu-card-content">
-                                    <div className="header-row">
-                                        <h3>{item.name}</h3>
-                                        <div className="allergens">
-                                            {(safeAllergens || []).map((a, idx) => (
-                                                <img
-                                                    key={`${item.id}-alg-${idx}`}
-                                                    src={ALLERGEN_ICONS[a] || "/icons/default.png"}
-                                                    alt={a}
-                                                    title={a}
-                                                    className="allergen-icon-img"
-                                                />
-                                            ))}
-                                        </div>
+                            const safeVariants = Array.isArray(item.variants)
+                                ? item.variants
+                                : (typeof item.variants === 'string'
+                                    ? JSON.parse(item.variants || '[]')
+                                    : []);
+
+                            return (
+                                <div key={item.id} className="menu-card">
+                                    <div className="menu-card-image">
+                                        {item.image_url ? (
+                                            <img src={item.image_url} alt={item.name} />
+                                        ) : (
+                                            <div className="no-image-placeholder">
+                                                <Flame size={40} />
+                                                <p>Imagen no disponible</p>
+                                            </div>
+                                        )}
+                                        {(item.is_new || item.is_promoted) && (
+                                            <div className="badge-container">
+                                                {item.is_new && <span className="badge badge-new">Novedad</span>}
+                                                {item.is_promoted && <span className="badge badge-promo">Oferta</span>}
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <p className="description">{item.description}</p>
+                                    <div className="menu-card-content">
+                                        <div className="header-row">
+                                            <h3>{item.name || 'Sin nombre'}</h3>
+                                            <div className="allergens">
+                                                {(safeAllergens || []).map((a, idx) => (
+                                                    <img
+                                                        key={`${item.id}-alg-${idx}`}
+                                                        src={ALLERGEN_ICONS[a] || "/icons/default.png"}
+                                                        alt={a}
+                                                        title={a}
+                                                        className="allergen-icon-img"
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
 
-                                    <div className="footer-row">
-                                        <span className="price">
-                                            {safeVariants && safeVariants.length >= 2
-                                                ? `${formatPrice(safeVariants[0]?.price)} / ${formatPrice(safeVariants[1]?.price)}`
-                                                : safeVariants && safeVariants.length === 1
-                                                    ? formatPrice(safeVariants[0]?.price)
-                                                    : formatPrice(item.base_price)
-                                            }
-                                        </span>
+                                        <p className="description">{item.description || 'Sin descripción'}</p>
+
+                                        <div className="footer-row">
+                                            <span className="price">
+                                                {safeVariants && safeVariants.length >= 2
+                                                    ? `${formatPrice(safeVariants[0]?.price)} / ${formatPrice(safeVariants[1]?.price)}`
+                                                    : safeVariants && safeVariants.length === 1
+                                                        ? formatPrice(safeVariants[0]?.price)
+                                                        : formatPrice(item.base_price)
+                                                }
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </motion.div>
-                        );
+                            );
+                        } catch (e) {
+                            console.error("Error renderizando item", item, e);
+                            return null;
+                        }
                     })}
-                    {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
-                        <div className="empty-state">
-                            <EditableText configKey="menuEmptyState" tag="p" />
-                        </div>
-                    )}
-                </motion.div>
-            </AnimatePresence>
+            </div>
+
+            {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
+                <div className="empty-state">
+                    <EditableText configKey="menuEmptyState" tag="p" />
+                </div>
+            )}
         </motion.div>
     );
 };
