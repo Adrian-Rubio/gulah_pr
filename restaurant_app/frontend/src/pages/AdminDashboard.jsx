@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff, RefreshCw, Type } from 'lucide-react';
+import { LayoutDashboard, Utensils, Calendar, Settings, Save, Trash2, Plus, MapPin, Phone, Mail, Clock, Users, Eye, EyeOff, RefreshCw, Type, Pencil } from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -66,9 +66,11 @@ const AdminDashboard = () => {
     const MenuManager = () => {
         const [items, setItems] = useState([]);
         const [loading, setLoading] = useState(true);
-        const [showAddForm, setShowAddForm] = useState(false);
+        const [showForm, setShowForm] = useState(false);
+        const [isEditing, setIsEditing] = useState(false);
+        const [editingId, setEditingId] = useState(null);
         const [isMenuUploading, setIsMenuUploading] = useState(false);
-        const [newItem, setNewItem] = useState({
+        const [itemForm, setItemForm] = useState({
             name: '', description: '', base_price: 0, category: 'ENTRANTES',
             image_url: '', allergens: [], variants: [], tags: [], is_promoted: false, is_new: false, is_active: true
         });
@@ -104,6 +106,25 @@ const AdminDashboard = () => {
             }
         };
 
+        const handleEditClick = (item) => {
+            setItemForm({ ...item, base_price: parseFloat(item.base_price) || 0 });
+            setIsEditing(true);
+            setEditingId(item.id);
+            setShowForm(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const resetForm = () => {
+            setItemForm({
+                name: '', description: '', base_price: 0, category: 'ENTRANTES',
+                image_url: '', allergens: [], variants: [], tags: [],
+                is_promoted: false, is_new: false, is_active: true
+            });
+            setIsEditing(false);
+            setEditingId(null);
+            setShowForm(false);
+        };
+
         const handleMenuImageUpload = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -115,9 +136,8 @@ const AdminDashboard = () => {
             try {
                 const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/upload`, formData);
                 let url = res.data.url;
-                // Si la URL es relativa, le concatenamos el backend para que sea accesible
                 if (url.startsWith('/')) url = `${import.meta.env.VITE_API_URL}${url}`;
-                setNewItem({ ...newItem, image_url: url });
+                setItemForm({ ...itemForm, image_url: url });
             } catch (err) {
                 console.error("Error subiendo imagen:", err);
                 alert("Error al subir la imagen");
@@ -126,19 +146,19 @@ const AdminDashboard = () => {
             }
         };
 
-        const handleAddSubmit = async (e) => {
+        const handleSaveItem = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/menu/admin`, newItem);
-                setShowAddForm(false);
+                const { id, ...payload } = itemForm;
+                if (isEditing) {
+                    await axios.put(`${import.meta.env.VITE_API_URL}/menu/admin/${editingId}`, payload);
+                } else {
+                    await axios.post(`${import.meta.env.VITE_API_URL}/menu/admin`, payload);
+                }
+                resetForm();
                 fetchItems();
-                setNewItem({
-                    name: '', description: '', base_price: 0, category: 'ENTRANTES',
-                    image_url: '', allergens: [], variants: [], tags: [],
-                    is_promoted: false, is_new: false, is_active: true
-                });
             } catch (err) {
-                alert("Error creating item");
+                alert(isEditing ? "Error updating item" : "Error creating item");
             }
         };
 
@@ -152,23 +172,23 @@ const AdminDashboard = () => {
         return (
             <div className="menu-manager fade-in">
                 <div className="manager-header" style={{ marginBottom: '2rem' }}>
-                    <button className="btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
-                        {showAddForm ? 'Cerrar Formulario' : <><Plus size={18} /> Añadir Plato</>}
+                    <button className="btn-primary" onClick={() => (showForm ? resetForm() : setShowForm(true))}>
+                        {showForm ? 'Cerrar Formulario' : <><Plus size={18} /> Añadir Plato</>}
                     </button>
                 </div>
 
-                {showAddForm && (
+                {showForm && (
                     <div className="glass-card add-form fade-in" style={{ marginBottom: '3rem' }}>
-                        <h3 style={{ marginBottom: '1.5rem' }}>Nuevo Plato</h3>
-                        <form onSubmit={handleAddSubmit}>
+                        <h3 style={{ marginBottom: '1.5rem' }}>{isEditing ? 'Editar Plato' : 'Nuevo Plato'}</h3>
+                        <form onSubmit={handleSaveItem}>
                             <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                                 <div className="form-group">
                                     <label>Nombre del Plato</label>
-                                    <input type="text" required value={newItem.name} onChange={e => setNewItem({ ...newItem, name: e.target.value })} />
+                                    <input type="text" required value={itemForm.name} onChange={e => setItemForm({ ...itemForm, name: e.target.value })} />
                                 </div>
                                 <div className="form-group">
                                     <label>Categoría</label>
-                                    <select value={newItem.category} onChange={e => setNewItem({ ...newItem, category: e.target.value })}>
+                                    <select value={itemForm.category} onChange={e => setItemForm({ ...itemForm, category: e.target.value })}>
                                         <option>ENTRANTES</option>
                                         <option>PO BOYS</option>
                                         <option>PATATAS</option>
@@ -189,9 +209,9 @@ const AdminDashboard = () => {
                                         className="file-input"
                                     />
                                     {isMenuUploading && <RefreshCw className="animate-spin" size={20} />}
-                                    {newItem.image_url && (
+                                    {itemForm.image_url && (
                                         <img
-                                            src={newItem.image_url}
+                                            src={itemForm.image_url}
                                             alt="Preview"
                                             style={{ height: '50px', borderRadius: '8px', border: '1px solid #ddd' }}
                                         />
@@ -203,23 +223,25 @@ const AdminDashboard = () => {
                             </div>
                             <div className="form-group">
                                 <label>Descripción</label>
-                                <textarea rows="3" value={newItem.description} onChange={e => setNewItem({ ...newItem, description: e.target.value })} />
+                                <textarea rows="3" value={itemForm.description} onChange={e => setItemForm({ ...itemForm, description: e.target.value })} />
                             </div>
                             <div className="form-group">
                                 <label>Precio Base (€)</label>
                                 <input
                                     type="number"
                                     step="0.01"
-                                    value={isNaN(newItem.base_price) ? '' : newItem.base_price}
+                                    value={isNaN(itemForm.base_price) ? '' : itemForm.base_price}
                                     onChange={e => {
                                         const val = parseFloat(e.target.value);
-                                        setNewItem({ ...newItem, base_price: isNaN(val) ? 0 : val });
+                                        setItemForm({ ...itemForm, base_price: isNaN(val) ? 0 : val });
                                     }}
                                 />
                             </div>
                             <div className="actions" style={{ display: 'flex', gap: '1rem' }}>
-                                <button type="submit" className="btn-primary">Guardar Plato</button>
-                                <button type="button" className="btn-secondary" onClick={() => setShowAddForm(false)}>Cancelar</button>
+                                <button type="submit" className="btn-primary">
+                                    {isEditing ? 'Actualizar Plato' : 'Guardar Plato'}
+                                </button>
+                                <button type="button" className="btn-secondary" onClick={resetForm}>Cancelar</button>
                             </div>
                         </form>
                     </div>
@@ -233,7 +255,6 @@ const AdminDashboard = () => {
                                     className="mini-preview"
                                     src={item.image_url || '/images/default.jpg'}
                                     onError={(e) => {
-                                        console.warn("Image load failed:", e.target.src);
                                         e.target.src = 'https://placehold.co/80x80?text=Gulah';
                                     }}
                                     alt=""
@@ -258,9 +279,14 @@ const AdminDashboard = () => {
                                     Nuevo
                                 </button>
                             </div>
-                            <button className="btn-secondary" style={{ color: '#ff4444', borderColor: '#ff4444', padding: '0.6rem' }} onClick={() => handleDelete(item.id)}>
-                                <Trash2 size={18} />
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button className="btn-secondary" style={{ padding: '0.6rem' }} onClick={() => handleEditClick(item)}>
+                                    <Pencil size={18} />
+                                </button>
+                                <button className="btn-secondary" style={{ color: '#ff4444', borderColor: '#ff4444', padding: '0.6rem' }} onClick={() => handleDelete(item.id)}>
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -271,8 +297,11 @@ const AdminDashboard = () => {
     const EventsManager = () => {
         const [posts, setPosts] = useState([]);
         const [loading, setLoading] = useState(true);
-        const [showAddForm, setShowAddForm] = useState(false);
-        const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
+        const [showForm, setShowForm] = useState(false);
+        const [isEditing, setIsEditing] = useState(false);
+        const [editingId, setEditingId] = useState(null);
+        const [isBlogUploading, setIsBlogUploading] = useState(false);
+        const [postForm, setPostForm] = useState({ title: '', content: '', image_url: '' });
 
         useEffect(() => {
             fetchPosts();
@@ -285,6 +314,7 @@ const AdminDashboard = () => {
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching blog", err);
+                setLoading(false);
             }
         };
 
@@ -295,76 +325,115 @@ const AdminDashboard = () => {
             }
         };
 
-        const handleAddSubmit = async (e) => {
+        const handleEditClick = (post) => {
+            setPostForm({ title: post.title, content: post.content, image_url: post.image_url });
+            setIsEditing(true);
+            setEditingId(post.id);
+            setShowForm(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const resetForm = () => {
+            setPostForm({ title: '', content: '', image_url: '' });
+            setIsEditing(false);
+            setEditingId(null);
+            setShowForm(false);
+        };
+
+        const handleSavePost = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/blog/admin`, newPost);
-                setShowAddForm(false);
+                if (isEditing) {
+                    await axios.put(`${import.meta.env.VITE_API_URL}/blog/admin/${editingId}`, postForm);
+                } else {
+                    await axios.post(`${import.meta.env.VITE_API_URL}/blog/admin`, postForm);
+                }
+                resetForm();
                 fetchPosts();
-                setNewPost({ title: '', content: '', image_url: '' });
             } catch (err) {
-                alert("Error al crear el post");
+                alert(isEditing ? "Error al actualizar el post" : "Error al crear el post");
             }
         };
 
         const handleImageUpload = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            setIsBlogUploading(true);
             const formData = new FormData();
             formData.append('file', file);
             try {
                 const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/upload`, formData);
                 let url = res.data.url;
                 if (url.startsWith('/')) url = `${import.meta.env.VITE_API_URL}${url}`;
-                setNewPost({ ...newPost, image_url: url });
+                setPostForm({ ...postForm, image_url: url });
             } catch (err) {
                 alert("Error subiendo imagen");
+            } finally {
+                setIsBlogUploading(false);
             }
         };
 
-        if (loading) return <div>Cargando...</div>;
+        if (loading) return (
+            <div className="loading-container">
+                <div className="loader"></div>
+                <p>Cargando eventos...</p>
+            </div>
+        );
 
         return (
             <div className="events-manager fade-in">
-                <button className="btn-primary" onClick={() => setShowAddForm(!showAddForm)} style={{ marginBottom: '2rem' }}>
-                    {showAddForm ? 'Cancelar' : 'Nuevo Evento'}
-                </button>
+                <div className="manager-header" style={{ marginBottom: '2rem' }}>
+                    <button className="btn-primary" onClick={() => (showForm ? resetForm() : setShowForm(true))}>
+                        {showForm ? 'Cerrar Formulario' : <><Plus size={18} /> Nuevo Evento</>}
+                    </button>
+                </div>
 
-                {showAddForm && (
-                    <div className="glass-card fade-in" style={{ marginBottom: '2rem' }}>
-                        <form onSubmit={handleAddSubmit}>
+                {showForm && (
+                    <div className="glass-card add-form fade-in" style={{ marginBottom: '3rem' }}>
+                        <h3 style={{ marginBottom: '1.5rem' }}>{isEditing ? 'Editar Evento' : 'Nuevo Evento'}</h3>
+                        <form onSubmit={handleSavePost}>
                             <div className="form-group">
                                 <label>Título</label>
-                                <input type="text" required value={newPost.title} onChange={e => setNewPost({ ...newPost, title: e.target.value })} />
+                                <input type="text" required value={postForm.title} onChange={e => setPostForm({ ...postForm, title: e.target.value })} />
                             </div>
                             <div className="form-group">
-                                <label>Imagen</label>
-                                <input type="file" onChange={handleImageUpload} />
-                                {newPost.image_url && <img src={newPost.image_url} style={{ height: '100px', marginTop: '10px', borderRadius: '8px' }} />}
+                                <label>Imagen del Evento</label>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <input type="file" accept="image/*" onChange={handleImageUpload} />
+                                    {isBlogUploading && <RefreshCw className="animate-spin" size={20} />}
+                                    {postForm.image_url && <img src={postForm.image_url} alt="Vista previa" style={{ height: '50px', borderRadius: '8px' }} />}
+                                </div>
                             </div>
                             <div className="form-group">
-                                <label>Contenido / Descripción</label>
-                                <textarea required rows="4" value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })} />
+                                <label>Contenido</label>
+                                <textarea rows="6" required value={postForm.content} onChange={e => setPostForm({ ...postForm, content: e.target.value })} />
                             </div>
-                            <button type="submit" className="btn-primary">Publicar Evento</button>
+                            <div className="actions" style={{ display: 'flex', gap: '1rem' }}>
+                                <button type="submit" className="btn-primary">{isEditing ? 'Actualizar Evento' : 'Publicar Evento'}</button>
+                                <button type="button" className="btn-secondary" onClick={resetForm}>Cancelar</button>
+                            </div>
                         </form>
                     </div>
                 )}
 
-                <div className="posts-list">
+                <div className="items-list">
                     {posts.map(post => (
-                        <div key={post.id} className="item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid #eee' }}>
-                            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                                <img src={post.image_url || '/images/default.jpg'} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />
-                                <div>
-                                    <h4 style={{ textTransform: 'uppercase', marginBottom: '0.3rem' }}>{post.title}</h4>
-                                    <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>{new Date(post.created_at).toLocaleDateString()}</p>
-                                    <p style={{ fontSize: '0.9rem', color: '#333', maxWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.content}</p>
+                        <div key={post.id} className="item-row">
+                            <div className="item-info-admin">
+                                <img className="mini-preview" src={post.image_url || '/images/default.jpg'} alt="" />
+                                <div className="info">
+                                    <h4 style={{ textTransform: 'uppercase' }}>{post.title}</h4>
+                                    <p style={{ fontSize: '0.8rem', color: '#666' }}>ID: {post.id} | Creado: {new Date(post.created_at).toLocaleDateString()}</p>
                                 </div>
                             </div>
-                            <button className="btn-secondary" style={{ color: '#ff4444', borderColor: '#ff4444', padding: '0.8rem' }} onClick={() => handleDelete(post.id)}>
-                                <Trash2 size={20} />
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button className="btn-secondary" style={{ padding: '0.6rem' }} onClick={() => handleEditClick(post)}>
+                                    <Pencil size={18} />
+                                </button>
+                                <button className="btn-secondary" style={{ color: '#ff4444', borderColor: '#ff4444', padding: '0.6rem' }} onClick={() => handleDelete(post.id)}>
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>

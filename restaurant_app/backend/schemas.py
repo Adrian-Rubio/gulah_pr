@@ -45,6 +45,12 @@ class BlogPostBase(BaseModel):
 class BlogPostCreate(BlogPostBase):
     pass
 
+class BlogPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    author: Optional[str] = None
+
 class BlogPost(BlogPostBase):
     id: int
     created_at: Any

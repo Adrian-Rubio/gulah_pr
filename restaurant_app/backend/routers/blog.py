@@ -58,6 +58,31 @@ def create_blog_post(post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     db.refresh(db_post)
     return db_post
 
+@router.put("/admin/{post_id}", response_model=schemas.BlogPost)
+def update_blog_post(post_id: int, post: schemas.BlogPostUpdate, db: Session = Depends(get_db)):
+    """
+    Updates an existing blog post.
+    
+    Args:
+        post_id (int): ID of the post to update.
+        post (BlogPostUpdate): Updated data.
+        db (Session): Database session.
+        
+    Returns:
+        BlogPost: The updated blog post.
+    """
+    db_post = db.query(models.BlogPost).filter(models.BlogPost.id == post_id).first()
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    update_data = post.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_post, key, value)
+    
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
 @router.delete("/admin/{post_id}")
 def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
     """
