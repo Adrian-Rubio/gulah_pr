@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Flame } from 'lucide-react';
 import axios from 'axios';
 import EditableText from '../components/Editable/EditableText';
@@ -21,11 +21,25 @@ const ALLERGEN_ICONS = {
     "Cacahuetes": "/icons/simbolo-alergeno-cacahuetes.png"
 };
 
+const PREFERRED_ORDER = ['ENTRANTES', 'PO BOYS', 'PATATAS', 'ENSALADAS', 'BRIOCHE', 'POSTRES', 'SALSAS'];
+
 const Menu = () => {
-    const categories = ['ENTRANTES', 'PO BOYS', 'PATATAS', 'ENSALADAS', 'BRIOCHE', 'POSTRES', 'SALSAS'];
     const [activeCategory, setActiveCategory] = useState('ENTRANTES');
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const categories = useMemo(() => {
+        if (!items.length) return [];
+        const uniqueCats = [...new Set(items.map(item => (item.category || "VARIOS").trim().toUpperCase()))];
+        return uniqueCats.sort((a, b) => {
+            const indexA = PREFERRED_ORDER.indexOf(a);
+            const indexB = PREFERRED_ORDER.indexOf(b);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a.localeCompare(b);
+        });
+    }, [items]);
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -40,6 +54,17 @@ const Menu = () => {
         };
         fetchMenu();
     }, []);
+
+    useEffect(() => {
+        if (categories.length > 0) {
+            // Si la categoría activa no existe en las categorías actuales, 
+            // o si todavía es el valor por defecto 'ENTRANTES' y 'ENTRANTES' no está en la lista (pero otras sí),
+            // cambiamos a la primera disponible.
+            if (!categories.includes(activeCategory)) {
+                setActiveCategory(categories[0]);
+            }
+        }
+    }, [categories, activeCategory]);
 
     const formatPrice = (price) => {
         if (price === undefined || price === null || isNaN(price)) return '0,00 €';
@@ -105,7 +130,7 @@ const Menu = () => {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => {
+                    {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).map(item => {
                         const safeAllergens = Array.isArray(item.allergens) ? item.allergens : (typeof item.allergens === 'string' ? JSON.parse(item.allergens || '[]') : []);
                         const safeVariants = Array.isArray(item.variants) ? item.variants : (typeof item.variants === 'string' ? JSON.parse(item.variants || '[]') : []);
 
@@ -164,7 +189,7 @@ const Menu = () => {
                             </motion.div>
                         );
                     })}
-                    {items.filter(item => (item.category || "").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
+                    {items.filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase()).length === 0 && (
                         <div className="empty-state">
                             <EditableText configKey="menuEmptyState" tag="p" />
                         </div>
