@@ -28,7 +28,7 @@ const DarkKitchen = () => {
     const deliveryPlatforms = [
         {
             name: 'Uber Eats',
-            url: 'https://www.ubereats.com/es/store/gulah-po-boys-madrid/Be4npbWTWfSgM5mEkQ2C_w?diningMode=DELIVERY&ps=1&sc=SEARCH_SUGGESTION',
+            url: 'https://www.ubereats.com/es/store/gulah-po-boys-madrid/Be4npbWTWfSgM5mEkQ2C_w?diningMode=DELIVERY&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkF2LiUyMGRlJTIwQmV0YW56b3MlMkMlMjAzOCUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpJWHJEVDVncFFnMFIybXlkY3d1d1JmMCUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC40NzU2NjU0JTJDJTIybG9uZ2l0dWRlJTIyJTNBLTMuNzExMTk0NSU3RA%3D%3D',
             color: '#06C167',
             logo: '/images/logos/ubereats.png'
         },
