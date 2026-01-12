@@ -5,6 +5,8 @@ import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
+
 const Events = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -12,8 +14,8 @@ const Events = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/blog`);
-                setPosts(res.data);
+                const res = await axios.get(`${API_URL}/blog`);
+                setPosts(Array.isArray(res.data) ? res.data : []);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching events", err);
@@ -69,7 +71,7 @@ const Events = () => {
             </div>
 
             <div className="blog-grid">
-                {posts.map(post => (
+                {Array.isArray(posts) && posts.map(post => (
                     <motion.article
                         key={post.id}
                         className="blog-card menu-card"

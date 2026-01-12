@@ -4,6 +4,8 @@ import { useConfig } from '../context/ConfigContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
+
 const AdminDashboard = () => {
     const { siteConfig, updateConfigByKey, fetchConfig, isEditMode, toggleEditMode } = useConfig();
     const [activeTab, setActiveTab] = useState('config');
@@ -81,7 +83,7 @@ const AdminDashboard = () => {
 
         const fetchItems = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/menu/admin`);
+                const res = await axios.get(`${API_URL}/menu/admin`);
                 setItems(res.data);
                 setLoading(false);
             } catch (err) {
@@ -92,7 +94,7 @@ const AdminDashboard = () => {
 
         const handleToggle = async (id, field, value) => {
             try {
-                await axios.patch(`${import.meta.env.VITE_API_URL}/menu/admin/${id}/status`, { [field]: value });
+                await axios.patch(`${API_URL}/menu/admin/${id}/status`, { [field]: value });
                 fetchItems();
             } catch (err) {
                 alert("Error updating item");
@@ -101,7 +103,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Seguro que quieres borrar este plato?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/menu/admin/${id}`);
+                await axios.delete(`${API_URL}/menu/admin/${id}`);
                 fetchItems();
             }
         };
@@ -134,9 +136,9 @@ const AdminDashboard = () => {
             formData.append('file', file);
 
             try {
-                const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/upload`, formData);
+                const res = await axios.post(`${API_URL}/admin/upload`, formData);
                 let url = res.data.url;
-                if (url.startsWith('/')) url = `${import.meta.env.VITE_API_URL}${url}`;
+                if (url.startsWith('/')) url = `${API_URL}${url}`;
                 setItemForm({ ...itemForm, image_url: url });
             } catch (err) {
                 console.error("Error subiendo imagen:", err);
@@ -151,9 +153,9 @@ const AdminDashboard = () => {
             try {
                 const { id, ...payload } = itemForm;
                 if (isEditing) {
-                    await axios.put(`${import.meta.env.VITE_API_URL}/menu/admin/${editingId}`, payload);
+                    await axios.put(`${API_URL}/menu/admin/${editingId}`, payload);
                 } else {
-                    await axios.post(`${import.meta.env.VITE_API_URL}/menu/admin`, payload);
+                    await axios.post(`${API_URL}/menu/admin`, payload);
                 }
                 resetForm();
                 fetchItems();
@@ -309,7 +311,7 @@ const AdminDashboard = () => {
 
         const fetchPosts = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/blog`);
+                const res = await axios.get(`${API_URL}/blog`);
                 setPosts(res.data);
                 setLoading(false);
             } catch (err) {
@@ -320,7 +322,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Borrar este evento?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/blog/admin/${id}`);
+                await axios.delete(`${API_URL}/blog/admin/${id}`);
                 fetchPosts();
             }
         };
@@ -344,9 +346,9 @@ const AdminDashboard = () => {
             e.preventDefault();
             try {
                 if (isEditing) {
-                    await axios.put(`${import.meta.env.VITE_API_URL}/blog/admin/${editingId}`, postForm);
+                    await axios.put(`${API_URL}/blog/admin/${editingId}`, postForm);
                 } else {
-                    await axios.post(`${import.meta.env.VITE_API_URL}/blog/admin`, postForm);
+                    await axios.post(`${API_URL}/blog/admin`, postForm);
                 }
                 resetForm();
                 fetchPosts();
@@ -362,9 +364,9 @@ const AdminDashboard = () => {
             const formData = new FormData();
             formData.append('file', file);
             try {
-                const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/upload`, formData);
+                const res = await axios.post(`${API_URL}/admin/upload`, formData);
                 let url = res.data.url;
-                if (url.startsWith('/')) url = `${import.meta.env.VITE_API_URL}${url}`;
+                if (url.startsWith('/')) url = `${API_URL}${url}`;
                 setPostForm({ ...postForm, image_url: url });
             } catch (err) {
                 alert("Error subiendo imagen");
@@ -456,7 +458,7 @@ const AdminDashboard = () => {
 
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/users`);
+                const res = await axios.get(`${API_URL}/auth/users`);
                 setUsers(res.data);
             } catch (err) {
                 console.error("Error fetching users", err);
@@ -466,7 +468,7 @@ const AdminDashboard = () => {
         const handleCreate = async (e) => {
             e.preventDefault();
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/auth/users`, newUser);
+                await axios.post(`${API_URL}/auth/users`, newUser);
                 setShowAdd(false);
                 fetchUsers();
                 setNewUser({ username: '', password: '', is_superuser: false });
@@ -479,7 +481,7 @@ const AdminDashboard = () => {
             e.preventDefault();
             try {
                 // We send the whole object, backend handles password if not empty
-                await axios.put(`${import.meta.env.VITE_API_URL}/auth/users/${editingUser.id}`, editingUser);
+                await axios.put(`${API_URL}/auth/users/${editingUser.id}`, editingUser);
                 setEditingUser(null);
                 fetchUsers();
             } catch (err) {
@@ -489,7 +491,7 @@ const AdminDashboard = () => {
 
         const handleDelete = async (id) => {
             if (window.confirm("¿Borrar este usuario?")) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/auth/users/${id}`);
+                await axios.delete(`${API_URL}/auth/users/${id}`);
                 fetchUsers();
             }
         };

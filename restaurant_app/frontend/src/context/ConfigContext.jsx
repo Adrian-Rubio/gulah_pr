@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+// API URL definition with fallback to local server IP for the restaurant app
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
+
 const ConfigContext = createContext();
 
 export const ConfigProvider = ({ children }) => {
@@ -16,8 +19,8 @@ export const ConfigProvider = ({ children }) => {
 
     const fetchConfig = async () => {
         try {
-            console.log("Fetching config from:", `${import.meta.env.VITE_API_URL}/config`);
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/config`);
+            console.log("Fetching config from:", `${API_URL}/config`);
+            const res = await axios.get(`${API_URL}/config`);
             if (Object.keys(res.data).length > 0) {
                 // Flatten contact_info if it exists or use direct keys
                 const newConfig = { ...siteConfig, ...res.data };
@@ -27,7 +30,7 @@ export const ConfigProvider = ({ children }) => {
                 setSiteConfig(newConfig);
             }
         } catch (err) {
-            console.error("CRITICAL: Error fetching config from", `${import.meta.env.VITE_API_URL}/config`);
+            console.error("CRITICAL: Error fetching config from", `${API_URL}/config`);
             console.error("Please ensure the backend is running and listening on 0.0.0.0:8000");
             console.error(err);
         }
@@ -39,7 +42,7 @@ export const ConfigProvider = ({ children }) => {
 
     const updateConfigByKey = async (key, value) => {
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/admin/config`, { key, value });
+            await axios.post(`${API_URL}/admin/config`, { key, value });
             fetchConfig(); // Refresh after update
         } catch (err) {
             console.error("Error updating config", err);

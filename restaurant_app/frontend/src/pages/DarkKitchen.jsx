@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, ShoppingBag, Bike, ExternalLink } from 'lucide-react';
 import axios from 'axios';
-import './DarkKitchen.css'; // We'll create this file next
+import './DarkKitchen.css';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
 
 const DarkKitchen = () => {
     const [floatingItems, setFloatingItems] = useState([]);
@@ -10,9 +12,10 @@ const DarkKitchen = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/menu`);
+                const res = await axios.get(`${API_URL}/menu`);
                 // Get 4 random items with images for the floating effect
-                const itemsWithImages = res.data.filter(item => item.image_url);
+                const data = Array.isArray(res.data) ? res.data : [];
+                const itemsWithImages = data.filter(item => item.image_url);
                 const shuffled = itemsWithImages.sort(() => 0.5 - Math.random());
                 setFloatingItems(shuffled.slice(0, 4));
             } catch (err) {

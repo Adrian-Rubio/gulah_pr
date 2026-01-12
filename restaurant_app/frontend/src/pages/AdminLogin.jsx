@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState(localStorage.getItem('rememberedUser') || '');
@@ -15,7 +16,7 @@ const AdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
+            const res = await axios.post(`${API_URL}/auth/login`, {
                 username,
                 password
             });

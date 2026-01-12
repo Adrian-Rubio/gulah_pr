@@ -4,6 +4,8 @@ import EditableText from '../components/Editable/EditableText';
 import { motion, AnimatePresence } from 'framer-motion';
 import MenuCard from '../components/MenuCard';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
+
 const ALLERGEN_ICONS = {
     "Gluten": "/icons/simbolo-alergeno-cereales.png",
     "Lácteos": "/icons/simbolo-alergeno-lacteos.png",
@@ -37,7 +39,7 @@ const Menu = () => {
      * Calculates unique categories from items, sorted by preferred order.
      */
     const categories = useMemo(() => {
-        if (!items.length) return [];
+        if (!Array.isArray(items) || !items.length) return [];
         const uniqueCats = [...new Set(items.map(item => (item.category || "VARIOS").trim().toUpperCase()))];
         return uniqueCats.sort((a, b) => {
             const indexA = PREFERRED_ORDER.indexOf(a);
@@ -55,8 +57,8 @@ const Menu = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/menu`);
-                setItems(res.data);
+                const res = await axios.get(`${API_URL}/menu`);
+                setItems(Array.isArray(res.data) ? res.data : []);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching menu", err);
@@ -120,7 +122,7 @@ const Menu = () => {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {items
+                    {Array.isArray(items) && items
                         .filter(item => (item.category || "VARIOS").trim().toUpperCase() === activeCategory.toUpperCase())
                         .map(item => (
                             <MenuCard
