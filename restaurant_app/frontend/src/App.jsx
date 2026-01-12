@@ -7,6 +7,7 @@ import Events from './pages/Events'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import EventDetail from './pages/EventDetail'
+import DarkKitchen from './pages/DarkKitchen'
 import { ConfigProvider } from './context/ConfigContext'
 import { ThemeProvider } from './context/ThemeContext'
 import './App.css'
@@ -36,6 +37,7 @@ function App() {
                                 <Route path="/admin" element={<AdminLogin />} />
                                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                                 <Route path="/events/:id" element={<EventDetail />} />
+                                <Route path="/dark-kitchen" element={<DarkKitchen />} />
                             </Routes>
                         </main>
                         <EditModeIndicator />
