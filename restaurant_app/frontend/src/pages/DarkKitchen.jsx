@@ -30,24 +30,48 @@ const DarkKitchen = () => {
             name: 'Uber Eats',
             url: 'https://www.ubereats.com/es/store/gulah-po-boys-madrid/Be4npbWTWfSgM5mEkQ2C_w?diningMode=DELIVERY&ps=1&sc=SEARCH_SUGGESTION',
             color: '#06C167',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Uber_Eats_2018_logo.svg' // Placeholder or just icon
+            logo: '/images/logos/ubereats.png'
         },
         {
             name: 'Glovo',
             url: 'https://glovoapp.com/es/es/madrid/stores/gulah-poboys-madrid',
             color: '#FFC244',
-            logo: 'https://upload.wikimedia.org/wikipedia/en/8/82/Glovo_logo.svg'
+            logo: '/images/logos/glovo.png'
         },
         {
             name: 'Just Eat',
             url: 'https://www.just-eat.es/restaurants-gulah-po-boys-madrid/menu',
             color: '#FB5000',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Just_Eat_Takeaway.com_logo.svg'
+            logo: '/images/logos/justeat.png'
         }
     ];
 
     return (
         <div className="dark-kitchen-page">
+            {/* Animated Background Blobs */}
+            <div className="bg-blobs">
+                <motion.div
+                    className="blob blob-1"
+                    animate={{
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 90, 0],
+                        x: [0, 50, 0],
+                        y: [0, 30, 0],
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                    className="blob blob-2"
+                    animate={{
+                        scale: [1, 1.3, 1],
+                        rotate: [0, -90, 0],
+                        x: [0, -40, 0],
+                        y: [0, 50, 0],
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                />
+            </div>
+
             {/* Floating Background Elements */}
             <div className="floating-elements">
                 {floatingItems.map((item, index) => (
@@ -76,7 +100,17 @@ const DarkKitchen = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <span className="dk-tag">EXCLUSIVO DELIVERY</span>
+                    <div className="new-badge-wrapper">
+                        <motion.span
+                            className="new-badge"
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            ¡NUEVO!
+                        </motion.span>
+                        <span className="dk-tag">EXCLUSIVO DELIVERY</span>
+                    </div>
+
                     <h1>Gulah <span className="text-gradient">Dark Kitchen</span></h1>
                     <p className="dk-description">
                         Nuestra cocina exclusiva para envío a domicilio en el barrio de <strong>Tetuán</strong>.
@@ -112,10 +146,8 @@ const DarkKitchen = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 + index * 0.1 }}
                         >
-                            <div className="platform-icon-wrapper" style={{ backgroundColor: platform.color }}>
-                                {index === 0 ? <ShoppingBag color="white" size={32} /> :
-                                    index === 1 ? <Bike color="white" size={32} /> :
-                                        <ShoppingBag color="white" size={32} />}
+                            <div className="platform-logo-container">
+                                <img src={platform.logo} alt={platform.name} className="platform-img-logo" />
                             </div>
                             <h3>{platform.name}</h3>
                             <p>Pide tus Po Boys favoritos ahora</p>
