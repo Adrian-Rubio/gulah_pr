@@ -10,8 +10,8 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
     const { siteConfig } = useConfig();
     const [theme, setTheme] = useState({
-        primaryFont: "'Outfit', sans-serif",
-        secondaryFont: "'Roboto', sans-serif",
+        primaryFont: "'Druk Wide', sans-serif",
+        secondaryFont: "'Druk Wide', sans-serif",
         baseFontSize: '16px'
     });
 
@@ -20,8 +20,8 @@ export const ThemeProvider = ({ children }) => {
         const typography = siteConfig.typography || {};
 
         const newTheme = {
-            primaryFont: typography.primaryFont || "'Outfit', sans-serif",
-            secondaryFont: typography.secondaryFont || "'Roboto', sans-serif",
+            primaryFont: typography.primaryFont || "'Druk Wide', sans-serif",
+            secondaryFont: typography.secondaryFont || "'Druk Wide', sans-serif",
             baseFontSize: typography.baseFontSize || '16px'
         };
 

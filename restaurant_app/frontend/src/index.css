@@ -1,3 +1,17 @@
+@font-face {
+    font-family: 'Druk Wide';
+    src: url('/fonts/DrukTextWide-Super.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Druk Wide';
+    src: url('/fonts/DrukTextWide-Medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@400;700;900&display=swap');
 
 :root {
@@ -20,16 +34,16 @@
     --accent: var(--vermilion);
 
     /* Dynamic Typography Variables */
-    --font-primary: 'Inter', sans-serif;
-    --font-secondary: 'Outfit', sans-serif;
+    --font-primary: 'Druk Wide', sans-serif;
+    --font-secondary: 'Druk Wide', sans-serif;
     --base-font-size: 16px;
 
     /* Legacy Font Variables (keeping for compatibility during transition) */
-    --font-main: var(--font-primary);
-    --font-bold: var(--font-secondary);
-    --font-elegant: 'Playfair Display', serif;
-    --font-modern: 'Montserrat', sans-serif;
-    
+    --font-main: 'Druk Wide', sans-serif;
+    --font-bold: 'Druk Wide', sans-serif;
+    --font-elegant: 'Druk Wide', sans-serif;
+    --font-modern: 'Druk Wide', sans-serif;
+
     --max-width: 1200px;
     --radius: 20px;
     --radius-sm: 12px;
@@ -47,9 +61,22 @@ body {
     font-family: var(--font-primary);
     background-color: var(--background);
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.4;
+    /* Slightly tighter for wide fonts */
     font-size: var(--base-font-size);
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
 }
 
 .app-container {
