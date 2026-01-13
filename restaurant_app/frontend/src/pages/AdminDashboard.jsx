@@ -796,6 +796,7 @@ const AdminDashboard = () => {
                                 value={typographyConfig.primaryFont}
                                 onChange={(e) => setTypographyConfig({ ...typographyConfig, primaryFont: e.target.value })}
                             >
+                                <option value="'Druk Wide', sans-serif">Druk Wide (Personalizada)</option>
                                 <option value="'Outfit', sans-serif">Outfit (Moderna)</option>
                                 <option value="'Playfair Display', serif">Playfair (Elegante)</option>
                                 <option value="'Inter', sans-serif">Inter (Limpia)</option>
@@ -809,6 +810,7 @@ const AdminDashboard = () => {
                                 value={typographyConfig.secondaryFont}
                                 onChange={(e) => setTypographyConfig({ ...typographyConfig, secondaryFont: e.target.value })}
                             >
+                                <option value="'Druk Wide', sans-serif">Druk Wide (Personalizada)</option>
                                 <option value="'Inter', sans-serif">Inter (Limpia)</option>
                                 <option value="'Roboto', sans-serif">Roboto (Estándar)</option>
                                 <option value="'Open Sans', sans-serif">Open Sans (Legible)</option>
