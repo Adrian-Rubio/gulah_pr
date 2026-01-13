@@ -13,7 +13,7 @@ const Navbar = () => {
         { name: 'Carta', path: '/menu' },
         { name: 'Reservas', path: '/reservations' },
         { name: 'Eventos', path: '/events' },
-        { name: 'Dark Kitchen', path: '/dark-kitchen' },
+        { name: 'Gulah Delivery', path: '/gulah-delivery' },
     ];
 
     return (

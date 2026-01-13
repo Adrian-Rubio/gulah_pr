@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, ShoppingBag, Bike, ExternalLink } from 'lucide-react';
 import axios from 'axios';
-import './DarkKitchen.css';
+import './GulahDelivery.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.221:8000';
 
-const DarkKitchen = () => {
+const GulahDelivery = () => {
     const [floatingItems, setFloatingItems] = useState([]);
 
     useEffect(() => {
@@ -47,7 +47,7 @@ const DarkKitchen = () => {
     ];
 
     return (
-        <div className="dark-kitchen-page">
+        <div className="gulah-delivery-page">
             {/* Animated Background Blobs */}
             <div className="bg-blobs">
                 <motion.div
@@ -111,7 +111,7 @@ const DarkKitchen = () => {
                         <span className="dk-tag">EXCLUSIVO DELIVERY</span>
                     </div>
 
-                    <h1>Gulah <span className="text-gradient">Dark Kitchen</span></h1>
+                    <h1>Gulah <span className="text-gradient">Delivery</span></h1>
                     <p className="dk-description">
                         Nuestra cocina exclusiva para envío a domicilio en el barrio de <strong>Tetuán</strong>.
                         Toda la esencia de New Orleans, preparada al momento y entregada en la puerta de tu casa
@@ -162,4 +162,4 @@ const DarkKitchen = () => {
     );
 };
 
-export default DarkKitchen;
+export default GulahDelivery;

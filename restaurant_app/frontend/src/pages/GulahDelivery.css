@@ -1,4 +1,4 @@
-.dark-kitchen-page {
+.gulah-delivery-page {
     position: relative;
     padding: 100px 2rem;
     min-height: calc(100vh - 80px);
@@ -287,7 +287,7 @@
         height: 80px;
     }
 
-    .dark-kitchen-page {
+    .gulah-delivery-page {
         padding: 60px 1rem;
     }
 }
